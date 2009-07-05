@@ -1,0 +1,307 @@
+ARM GAS  Startup.s 			page 1
+
+
+   1              	/*****************************************************************************/
+   2              	/* STARTUP.S: Startup file for Blinky Example                                */
+   3              	/*****************************************************************************/
+   4              	/* Version: CodeSourcery Sourcery G++ Lite (with CS3)                        */
+   5              	/*****************************************************************************/
+   6              	
+   7              	
+   8              	/* 
+   9              	//*** <<< Use Configuration Wizard in Context Menu >>> *** 
+  10              	*/
+  11              	
+  12              	
+  13              	/*
+  14              	 *  The STARTUP.S code is executed after CPU Reset. This file may be 
+  15              	 *  translated with the following SET symbols. In uVision these SET 
+  16              	 *  symbols are entered under Options - ASM - Define.
+  17              	 *
+  18              	 *  REMAP: when set the startup code initializes the register MEMMAP 
+  19              	 *  which overwrites the settings of the CPU configuration pins. The 
+  20              	 *  startup and interrupt vectors are remapped from:
+  21              	 *     0x00000000  default setting (not remapped)
+  22              	 *     0x40000000  when RAM_MODE is used
+  23              	 *
+  24              	 *  RAM_MODE: when set the device is configured for code execution
+  25              	 *  from on-chip RAM starting at address 0x40000000. 
+  26              	 */
+  27              	
+  28              	
+  29              	# Standard definitions of Mode bits and Interrupt (I & F) flags in PSRs
+  30              	
+  31              	        .equ    Mode_USR,       0x10
+  32              	        .equ    Mode_FIQ,       0x11
+  33              	        .equ    Mode_IRQ,       0x12
+  34              	        .equ    Mode_SVC,       0x13
+  35              	        .equ    Mode_ABT,       0x17
+  36              	        .equ    Mode_UND,       0x1B
+  37              	        .equ    Mode_SYS,       0x1F
+  38              	
+  39              	        .equ    I_Bit,          0x80    /* when I bit is set, IRQ is disabled */
+  40              	        .equ    F_Bit,          0x40    /* when F bit is set, FIQ is disabled */
+  41              	
+  42              	
+  43              	/*
+  44              	// <h> Stack Configuration (Stack Sizes in Bytes)
+  45              	//   <o0> Undefined Mode      <0x0-0xFFFFFFFF:8>
+  46              	//   <o1> Abort Mode          <0x0-0xFFFFFFFF:8>
+  47              	//   <o2> Fast Interrupt Mode <0x0-0xFFFFFFFF:8>
+  48              	//   <o3> Interrupt Mode      <0x0-0xFFFFFFFF:8>
+  49              	//   <o4> Supervisor Mode     <0x0-0xFFFFFFFF:8>
+  50              	//   <o5> User/System Mode    <0x0-0xFFFFFFFF:8>
+  51              	// </h>
+  52              	*/
+  53              	
+  54              	        .equ    UND_Stack_Size, 0x00000000
+  55              			.equ    SVC_Stack_Size, 0x00000200
+  56              	        .equ    ABT_Stack_Size, 0x00000000
+  57              	        .equ    FIQ_Stack_Size, 0x00000000
+ARM GAS  Startup.s 			page 2
+
+
+  58              	        .equ    IRQ_Stack_Size, 0x00000100
+  59              	        .equ    USR_Stack_Size, 0x00000000
+  60              	
+  61              	        .section ".stack", "w"
+  62              	        .align  3
+  63              	        .globl  __cs3_stack_mem
+  64              	        .globl  __cs3_stack_size
+  65              	__cs3_stack_mem:
+  66              	        .if     USR_Stack_Size
+  67              	        .space  USR_Stack_Size
+  68              	        .endif
+  69              	        .if     SVC_Stack_Size
+  70 0000 00000000 	        .space  SVC_Stack_Size
+  70      00000000 
+  70      00000000 
+  70      00000000 
+  70      00000000 
+  71              	        .endif
+  72              	        .if     IRQ_Stack_Size
+  73 0200 00000000 	        .space  IRQ_Stack_Size
+  73      00000000 
+  73      00000000 
+  73      00000000 
+  73      00000000 
+  74              	        .endif
+  75              	        .if     FIQ_Stack_Size
+  76              	        .space  FIQ_Stack_Size
+  77              	        .endif
+  78              	        .if     ABT_Stack_Size
+  79              	        .space  ABT_Stack_Size
+  80              	        .endif
+  81              	        .if     UND_Stack_Size
+  82              	        .space  UND_Stack_Size
+  83              	        .endif
+  84              	        .size   __cs3_stack_mem,  . - __cs3_stack_mem
+  85              	        .set    __cs3_stack_size, . - __cs3_stack_mem
+  86              	
+  87              	
+  88              	/*
+  89              	// <h> Heap Configuration
+  90              	//   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
+  91              	// </h>
+  92              	*/
+  93              	
+  94              	        .equ    Heap_Size,      0x00000000
+  95              	
+  96              	        .section ".heap", "w"
+  97              	        .align  3
+  98              	        .globl  __cs3_heap_start
+  99              	        .globl  __cs3_heap_end
+ 100              	__cs3_heap_start:
+ 101              	        .if     Heap_Size
+ 102              	        .space  Heap_Size
+ 103              	        .endif
+ 104              	__cs3_heap_end:
+ 105              	
+ 106              	# Exception Vectors
+ARM GAS  Startup.s 			page 3
+
+
+ 107              	
+ 108              	        .arm
+ 109              	
+ 110              	        .section ".cs3.interrupt_vector"
+ 111              	        .globl  __cs3_interrupt_vector_arm
+ 112              	        .type   __cs3_interrupt_vector_arm, %object
+ 113              	__cs3_interrupt_vector_arm:
+ 114              	
+ 115 0000 18F09FE5 	                LDR     PC, Reset_Addr         
+ 116 0004 18F09FE5 	                LDR     PC, Undef_Addr
+ 117 0008 18F09FE5 	                LDR     PC, SWI_Addr
+ 118 000c 18F09FE5 	                LDR     PC, PAbt_Addr
+ 119 0010 18F09FE5 	                LDR     PC, DAbt_Addr
+ 120 0014 0000A0E1 	                NOP                            /* Reserved Vector */
+ 121              	#               LDR     PC, IRQ_Addr
+ 122              	#                LDR     PC, [PC, #-0x0FF0]     /* Vector from VicVectAddr */
+ 123 0018 20F11FE5 	          		LDR     PC, [PC, #-0x0120]     /* Vector from VicVectAddr */
+ 124 001c 18F09FE5 	                LDR     PC, FIQ_Addr
+ 125              	
+ 126 0020 00000000 	Reset_Addr:     .word   __cs3_reset_arm
+ 127 0024 00000000 	Undef_Addr:     .word   Undef_Handler
+ 128 0028 00000000 	SWI_Addr:       .word   SWI_Handler
+ 129 002c 00000000 	PAbt_Addr:      .word   PAbt_Handler
+ 130 0030 00000000 	DAbt_Addr:      .word   DAbt_Handler
+ 131 0034 00000000 	                .word   0                      /* Reserved Address */
+ 132 0038 00000000 	IRQ_Addr:       .word   IRQ_Handler
+ 133 003c 00000000 	FIQ_Addr:       .word   FIQ_Handler
+ 134              	
+ 135              	        .size   __cs3_interrupt_vector_arm, . - __cs3_interrupt_vector_arm
+ 136              	
+ 137              	
+ 138              	# Exception Handlers
+ 139              	
+ 140              	        .section ".text"
+ 141              	
+ 142              	        .weak   Undef_Handler
+ 143              	        .type   Undef_Handler, %function
+ 144 0000 FEFFFFEA 	Undef_Handler:  B       Undef_Handler
+ 145              	        .size   Undef_Handler, . - Undef_Handler
+ 146              	
+ 147              	        .weak   SWI_Handler
+ 148              	        .type   SWI_Handler, %function
+ 149 0004 FEFFFFEA 	SWI_Handler:    B       SWI_Handler
+ 150              	        .size   SWI_Handler, . - SWI_Handler
+ 151              	
+ 152              	        .weak   PAbt_Handler
+ 153              	        .type   PAbt_Handler, %function
+ 154 0008 FEFFFFEA 	PAbt_Handler:   B       PAbt_Handler
+ 155              	        .size   PAbt_Handler, . - PAbt_Handler
+ 156              	
+ 157              	        .weak   DAbt_Handler
+ 158              	        .type   DAbt_Handler, %function
+ 159 000c FEFFFFEA 	DAbt_Handler:   B       DAbt_Handler
+ 160              	        .size   DAbt_Handler, . - DAbt_Handler
+ 161              	
+ 162              	        .weak   IRQ_Handler
+ 163              	        .type   IRQ_Handler, %function
+ARM GAS  Startup.s 			page 4
+
+
+ 164 0010 FEFFFFEA 	IRQ_Handler:    B       IRQ_Handler
+ 165              	        .size   IRQ_Handler, . - IRQ_Handler
+ 166              	
+ 167              	        .weak   FIQ_Handler
+ 168              	        .type   FIQ_Handler, %function
+ 169 0014 FEFFFFEA 	FIQ_Handler:    B       FIQ_Handler
+ 170              	        .size   FIQ_Handler, . - FIQ_Handler
+ 171              	
+ 172              	
+ 173              	# Reset Handler
+ 174              	
+ 175              	        .section .cs3.reset,"x",%progbits
+ 176              	        .globl  __cs3_reset_arm
+ 177              	        .type   __cs3_reset_arm, %function
+ 178              	__cs3_reset_arm:
+ 179              	        .fnstart
+ 180              	
+ 181              	# Initialise Interrupt System
+ 182              	#  ...
+ 183              	
+ 184              	
+ 185              	# Setup Stack for each mode
+ 186              	
+ 187 0000 4C009FE5 	                LDR     R0, =__cs3_stack
+ 188              	
+ 189              	#  Enter Undefined Instruction Mode and set its Stack Pointer
+ 190 0004 DBF021E3 	                MSR     CPSR_c, #Mode_UND|I_Bit|F_Bit
+ 191 0008 00D0A0E1 	                MOV     SP, R0
+ 192 000c 000040E2 	                SUB     R0, R0, #UND_Stack_Size
+ 193              	
+ 194              	#  Enter Abort Mode and set its Stack Pointer
+ 195 0010 D7F021E3 	                MSR     CPSR_c, #Mode_ABT|I_Bit|F_Bit
+ 196 0014 00D0A0E1 	                MOV     SP, R0
+ 197 0018 000040E2 	                SUB     R0, R0, #ABT_Stack_Size
+ 198              	
+ 199              	#  Enter FIQ Mode and set its Stack Pointer
+ 200 001c D1F021E3 	                MSR     CPSR_c, #Mode_FIQ|I_Bit|F_Bit
+ 201 0020 00D0A0E1 	                MOV     SP, R0
+ 202 0024 000040E2 	                SUB     R0, R0, #FIQ_Stack_Size
+ 203              	
+ 204              	#  Enter IRQ Mode and set its Stack Pointer
+ 205 0028 D2F021E3 	                MSR     CPSR_c, #Mode_IRQ|I_Bit|F_Bit
+ 206 002c 00D0A0E1 	                MOV     SP, R0
+ 207 0030 010C40E2 	                SUB     R0, R0, #IRQ_Stack_Size
+ 208              	
+ 209              	#  Enter Supervisor Mode and set its Stack Pointer
+ 210 0034 D3F021E3 	                MSR     CPSR_c, #Mode_SVC|I_Bit|F_Bit
+ 211 0038 00D0A0E1 	                MOV     SP, R0
+ 212 003c 020C40E2 	                SUB     R0, R0, #SVC_Stack_Size
+ 213              	
+ 214              	#  Enter User Mode and set its Stack Pointer
+ 215 0040 10F021E3 	                MSR     CPSR_c, #Mode_USR
+ 216 0044 00D0A0E1 	                MOV     SP, R0
+ 217              	
+ 218              	#  Setup a default Stack Limit (when compiled with "-mapcs-stack-check")
+ 219 0048 00A04DE2 	                SUB     SL, SP, #USR_Stack_Size
+ 220              	
+ARM GAS  Startup.s 			page 5
+
+
+ 221              	
+ 222              	# Enter the C code
+ 223              	
+ 224              	        .globl  _start
+ 225              	_start:
+ 226 004c 04009FE5 	                LDR     R0,=__cs3_start_c
+ 227 0050 10FF2FE1 	                BX      R0
+ 228              	
+ 229              	
+ 230              	        .fnend
+ 231              	        .size   __cs3_reset_arm, . - __cs3_reset_arm
+ 232              	
+ 233              	
+ 234 0054 00000000 	        .end
+ 234      00000000 
+ARM GAS  Startup.s 			page 6
+
+
+DEFINED SYMBOLS
+           Startup.s:31     *ABS*:00000010 Mode_USR
+           Startup.s:32     *ABS*:00000011 Mode_FIQ
+           Startup.s:33     *ABS*:00000012 Mode_IRQ
+           Startup.s:34     *ABS*:00000013 Mode_SVC
+           Startup.s:35     *ABS*:00000017 Mode_ABT
+           Startup.s:36     *ABS*:0000001b Mode_UND
+           Startup.s:37     *ABS*:0000001f Mode_SYS
+           Startup.s:39     *ABS*:00000080 I_Bit
+           Startup.s:40     *ABS*:00000040 F_Bit
+           Startup.s:54     *ABS*:00000000 UND_Stack_Size
+           Startup.s:55     *ABS*:00000200 SVC_Stack_Size
+           Startup.s:56     *ABS*:00000000 ABT_Stack_Size
+           Startup.s:57     *ABS*:00000000 FIQ_Stack_Size
+           Startup.s:58     *ABS*:00000100 IRQ_Stack_Size
+           Startup.s:59     *ABS*:00000000 USR_Stack_Size
+           Startup.s:65     .stack:00000000 __cs3_stack_mem
+                            *ABS*:00000300 __cs3_stack_size
+           Startup.s:94     *ABS*:00000000 Heap_Size
+           Startup.s:100    .heap:00000000 __cs3_heap_start
+           Startup.s:104    .heap:00000000 __cs3_heap_end
+           Startup.s:108    .heap:00000000 $a
+           Startup.s:113    .cs3.interrupt_vector:00000000 __cs3_interrupt_vector_arm
+           Startup.s:126    .cs3.interrupt_vector:00000020 Reset_Addr
+           Startup.s:127    .cs3.interrupt_vector:00000024 Undef_Addr
+           Startup.s:128    .cs3.interrupt_vector:00000028 SWI_Addr
+           Startup.s:129    .cs3.interrupt_vector:0000002c PAbt_Addr
+           Startup.s:130    .cs3.interrupt_vector:00000030 DAbt_Addr
+           Startup.s:133    .cs3.interrupt_vector:0000003c FIQ_Addr
+           Startup.s:126    .cs3.interrupt_vector:00000020 $d
+           Startup.s:178    .cs3.reset:00000000 __cs3_reset_arm
+           Startup.s:144    .text:00000000 Undef_Handler
+           Startup.s:149    .text:00000004 SWI_Handler
+           Startup.s:154    .text:00000008 PAbt_Handler
+           Startup.s:159    .text:0000000c DAbt_Handler
+           Startup.s:132    .cs3.interrupt_vector:00000038 IRQ_Addr
+           Startup.s:164    .text:00000010 IRQ_Handler
+           Startup.s:169    .text:00000014 FIQ_Handler
+           Startup.s:144    .text:00000000 $a
+           Startup.s:225    .cs3.reset:0000004c _start
+           Startup.s:234    .cs3.reset:00000054 $d
+
+UNDEFINED SYMBOLS
+__cs3_stack
+__cs3_start_c
+__aeabi_unwind_cpp_pr0

@@ -1,0 +1,210 @@
+### uVision2 Project, (C) Keil Software
+### Do not modify !
+
+Target (Simulator), 0x0003 // Tools: 'ARM-GNU'
+Target (MCB2130 Flash), 0x0003 // Tools: 'ARM-GNU'
+
+Group (Startup Code)
+Group (System Calls)
+Group (Source Code)
+Group (Documentation)
+Group (Header Files)
+
+File 1,2,<.\Startup.s><Startup.s>
+File 2,1,<.\sys_init.c><sys_init.c>
+File 2,1,<.\Serial.c><Serial.c>
+File 2,1,<.\sbl_iap.c><sbl_iap.c>
+File 2,1,<.\Syscalls.c><Syscalls.c>
+File 3,8,<.\fio.cpp><fio.cpp>
+File 3,8,<.\irq.cpp><irq.cpp>
+File 3,8,<.\nothrow.cpp><nothrow.cpp>
+File 3,8,<.\sbl_iap.cpp><sbl_iap.cpp>
+File 3,8,<.\Serial.cpp><Serial.cpp>
+File 3,8,<.\sys_init.cpp><sys_init.cpp>
+File 3,8,<.\uart.cpp><uart.cpp>
+File 4,5,<.\Abstract.txt><Abstract.txt>
+File 5,5,<.\sbl_config.h><sbl_config.h>
+File 5,5,<.\sbl_iap.h><sbl_iap.h>
+File 5,5,<.\Serial.h><Serial.h>
+File 5,5,<.\type.h><type.h>
+File 5,5,<.\sys_config.h><sys_config.h>
+File 5,5,<.\LPC23xx.h><LPC23xx.h>
+File 5,5,<.\LPC_REGS.h><LPC_REGS.h>
+File 5,5,<.\LPC_UTIL_DEFS.h><LPC_UTIL_DEFS.h>
+File 5,5,<.\app_types.h><app_types.h>
+
+
+Options 1,0,0  // Target 'Simulator'
+ Device (LPC2138)
+ Vendor (NXP (founded by Philips))
+ Cpu (IRAM(0x40000000-0x40007FFF) IROM(0-0x7FFFF) CLOCK(12000000) CPUTYPE(ARM7TDMI))
+ FlashUt (LPC210x_ISP.EXE ("#H" ^X $D COM1: 38400 1))
+ StupF ("STARTUP\Philips\Startup.s" ("Philips LPC2100 Startup Code"))
+ FlashDR (UL2ARM(-U268761108 -O7 -C0 -FO15 -FD40000000 -FC800 -FN1 -FF0LPC_IAP2_512 -FS00 -FL07D000))
+ DevID (3734)
+ Rgf (LPC213X.H)
+ Mem ()
+ C ()
+ A ()
+ RL ()
+ OH ()
+ DBC_IFX ()
+ DBC_CMS ()
+ DBC_AMS ()
+ DBC_LMS ()
+ UseEnv=0
+ EnvBin ()
+ EnvInc ()
+ EnvLib ()
+ EnvReg ()
+ OrgReg (ÿPhilips\)
+ TgStat=16
+ OutDir (.\obj\)
+ OutName (Blinky)
+ GenApp=1
+ GenLib=0
+ GenHex=0
+ Debug=1
+ Browse=0
+ LstDir (.\lst\)
+ HexSel=1
+ MG32K=0
+ TGMORE=0
+ RunUsr 0 0 <>
+ RunUsr 1 0 <>
+ BrunUsr 0 0 <>
+ BrunUsr 1 0 <>
+ CrunUsr 0 0 <>
+ CrunUsr 1 0 <>
+ SVCSID <>
+ GLFLAGS=2047
+ GCPUTYP (ARM7TDMI)
+ TFlagsA { 0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ OCMARM { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ OCMARAM { 0,0,0,0,64,0,128,0,0 }
+ OCMAROM { 1,0,0,0,0,0,0,8,0 }
+ OCMXRAM { 0,0,0,0,0,0,0,0,0 }
+ OCMIRAM2 { 0,0,0,0,0,0,0,0,0 }
+ OCMIROM2 { 0,0,0,0,0,0,0,0,0 }
+ ACCFLG { 65,0,32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ ACMISC ()
+ ACDEFN ()
+ ACUDEF ()
+ ACINCD ()
+ AASFLG { 4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ AAMISC ()
+ AADEFN ()
+ AAUDEF ()
+ AAINCD ()
+ PropFld { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ IncBld=1
+ AlwaysBuild=0
+ GenAsm=0
+ AsmAsm=0
+ PublicsOnly=0
+ StopCode=3
+ CustArgs ()
+ LibMods ()
+ ALDFLAG { 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ ALDTADR ()
+ ALDDADR ()
+ ALDBSSR ()
+ ALDICLB ()
+ ALDICDR ()
+ ALDMISC ()
+ ALDSCAT (ARM.ld)
+  OPTDL (SARM.DLL)(-cLPC2100)(DARMP.DLL)(-pLPC2138)(SARM.DLL)()(TARMP.DLL)(-pLPC2138)
+  OPTDBG 48125,0,()()()()(.\Sim.ini)()()()()() (BIN\UL2ARM.DLL)()()()
+ FLASH1 { 1,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0 }
+ FLASH2 ()
+ FLASH3 ("LPC210x_ISP.EXE" ("#H" ^X $D COM1: 38400 1))
+ FLASH4 ()
+EndOpt
+
+Options 2,0,0  // Target 'MCB2130 Flash'
+ Device (LPC2368)
+ Vendor (NXP (founded by Philips))
+ Cpu (IRAM(0x40000000-0x40007FFF) IRAM2(0x7FE00000-0x7FE03FFF) IROM(0-0x7FFFF) CLOCK(12000000) CPUTYPE(ARM7TDMI))
+ FlashUt (LPC210x_ISP.EXE ("#H" ^X $D COM1: 38400 1))
+ StupF ("STARTUP\Philips\LPC2300.s" ("Philips LPC2300 Startup Code"))
+ FlashDR (UL2ARM(-U268761108 -O7 -S0 -C0 -FO15 -FD40000000 -FC800 -FN1 -FF0LPC_IAP2_512 -FS00 -FL07E000))
+ DevID (4152)
+ Rgf (LPC23xx.H)
+ Mem ()
+ C ()
+ A ()
+ RL ()
+ OH ()
+ DBC_IFX ()
+ DBC_CMS ()
+ DBC_AMS ()
+ DBC_LMS ()
+ UseEnv=0
+ EnvBin ()
+ EnvInc ()
+ EnvLib ()
+ EnvReg (ÿPhilips\)
+ OrgReg (ÿPhilips\)
+ TgStat=16
+ OutDir (.\obj\)
+ OutName (Blinky)
+ GenApp=1
+ GenLib=0
+ GenHex=0
+ Debug=1
+ Browse=0
+ LstDir (.\lst\)
+ HexSel=1
+ MG32K=0
+ TGMORE=0
+ RunUsr 0 0 <>
+ RunUsr 1 0 <>
+ BrunUsr 0 0 <>
+ BrunUsr 1 0 <>
+ CrunUsr 0 0 <>
+ CrunUsr 1 0 <>
+ SVCSID <>
+ GLFLAGS=2047
+ GCPUTYP (ARM7TDMI)
+ TFlagsA { 0,12,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ OCMARM { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ OCMARAM { 0,0,0,0,64,0,128,0,0 }
+ OCMAROM { 1,0,0,0,0,0,0,8,0 }
+ OCMXRAM { 0,0,0,0,0,0,0,0,0 }
+ OCMIRAM2 { 0,0,0,224,127,0,64,0,0 }
+ OCMIROM2 { 0,0,0,0,0,0,0,0,0 }
+ ACCFLG { 65,80,32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ ACMISC ()
+ ACDEFN ()
+ ACUDEF ()
+ ACINCD ()
+ AASFLG { 4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ AAMISC ()
+ AADEFN ()
+ AAUDEF ()
+ AAINCD ()
+ PropFld { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ IncBld=1
+ AlwaysBuild=0
+ GenAsm=0
+ AsmAsm=0
+ PublicsOnly=0
+ StopCode=3
+ CustArgs ()
+ LibMods ()
+ ALDFLAG { 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ ALDTADR ()
+ ALDDADR ()
+ ALDBSSR ()
+ ALDICLB ()
+ ALDICDR ()
+ ALDMISC ()
+ ALDSCAT (.\ARM.ld)
+  OPTDL (SARM.DLL)(-cLPC236x)(DARMP.DLL)(-pLPC2368)(SARM.DLL)()(TARMP.DLL)(-pLPC2368)
+  OPTDBG 49150,0,()()()()()()()()()() (BIN\UL2ARM.DLL)()()()
+ FLASH1 { 1,0,0,0,1,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0 }
+ FLASH2 (BIN\UL2ARM.DLL)
+ FLASH3 ("LPC210x_ISP.EXE" ("#H" ^X $D COM1: 38400 1))
+ FLASH4 ()
+EndOpt
+

@@ -1,0 +1,1918 @@
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 1
+
+
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 18, 4
+  11              		.file	"sys_init.cpp"
+  12              		.section	.debug_abbrev,"",%progbits
+  13              	.Ldebug_abbrev0:
+  14              		.section	.debug_info,"",%progbits
+  15              	.Ldebug_info0:
+  16              		.section	.debug_line,"",%progbits
+  17              	.Ldebug_line0:
+  18 0000 91010000 		.text
+  18      0200A400 
+  18      00000201 
+  18      FB0E0D00 
+  18      01010101 
+  19              	.Ltext0:
+  20              		.align	2
+  21              		.global	_Z16oneMillisHandlerv
+  22              		.type	_Z16oneMillisHandlerv, %function
+  23              	_Z16oneMillisHandlerv:
+  24              		.fnstart
+  25              	.LFB3:
+  26              		.file 1 "sys_init.cpp"
+   1:sys_init.cpp  **** #include <stdint.h>
+   2:sys_init.cpp  **** 
+   3:sys_init.cpp  **** #include "LPC_REGS.h"
+   4:sys_init.cpp  **** #include "sys_config.h"
+   5:sys_init.cpp  **** 
+   6:sys_init.cpp  **** // setup parameters
+   7:sys_init.cpp  **** #define T0_PCLK_DIV     1
+   8:sys_init.cpp  **** #define sysTICSperSEC   (PCLK / T0_PCLK_DIV)
+   9:sys_init.cpp  **** 
+  10:sys_init.cpp  **** #define USECS_128	    (uint32_t)((128e-6 * sysTICSperSEC) + .5)
+  11:sys_init.cpp  **** #define ONE_MS          (uint32_t)((  1e-3 * sysTICSperSEC) + .5)
+  12:sys_init.cpp  **** #define SYSTIME_INT_DT          (USECS_128)
+  13:sys_init.cpp  **** 
+  14:sys_init.cpp  **** #define ISR_ENTRY() asm volatile(" sub   lr, lr,#4\n" \
+  15:sys_init.cpp  ****                                  " stmfd sp!,{r0-r12,lr}\n" \
+  16:sys_init.cpp  ****                                  " mrs   r1, spsr\n" \
+  17:sys_init.cpp  ****                                  " stmfd sp!,{r1}")
+  18:sys_init.cpp  **** 
+  19:sys_init.cpp  **** 
+  20:sys_init.cpp  **** #define ISR_EXIT()  asm volatile(" ldmfd sp!,{r1}\n" \
+  21:sys_init.cpp  ****                                  " msr   spsr_c,r1\n" \
+  22:sys_init.cpp  ****                                  " ldmfd sp!,{r0-r12,pc}^")
+  23:sys_init.cpp  **** 
+  24:sys_init.cpp  **** void sysTimeISR(void) __attribute__((naked));
+  25:sys_init.cpp  **** static void initSysTime(void);
+  26:sys_init.cpp  **** void initADC(void);
+  27:sys_init.cpp  **** void oneMillisHandler(void);
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 2
+
+
+  28:sys_init.cpp  **** 
+  29:sys_init.cpp  **** unsigned int adcSamplesNorth=0;
+  30:sys_init.cpp  **** unsigned int adcSamplesSouth=0;
+  31:sys_init.cpp  **** unsigned int adcSamplesEast=0;
+  32:sys_init.cpp  **** unsigned int adcSamplesWest=0;
+  33:sys_init.cpp  **** 
+  34:sys_init.cpp  **** unsigned int currentNorth=0;
+  35:sys_init.cpp  **** unsigned int currentSouth=0;
+  36:sys_init.cpp  **** unsigned int currentEast=0;
+  37:sys_init.cpp  **** unsigned int currentWest=0;
+  38:sys_init.cpp  **** 
+  39:sys_init.cpp  **** unsigned char millisCntr=0;
+  40:sys_init.cpp  **** volatile long millis=0;
+  41:sys_init.cpp  **** 
+  42:sys_init.cpp  **** //********************************
+  43:sys_init.cpp  **** //* The System Timer Interrupt
+  44:sys_init.cpp  **** //* Every 128 microseconds
+  45:sys_init.cpp  **** void sysTimeISR(void)
+  46:sys_init.cpp  **** {
+  47:sys_init.cpp  **** 	/* Enter */
+  48:sys_init.cpp  ****    ISR_ENTRY();
+  49:sys_init.cpp  **** 	T0MR0 += SYSTIME_INT_DT - 1; // next match-value
+  50:sys_init.cpp  **** 	T0IR = TxIR_MR0_Interrupt;   // clear interrupt by writing an IR-bit
+  51:sys_init.cpp  **** 
+  52:sys_init.cpp  **** 	/* Store the 4 current measurements, for averaging later */
+  53:sys_init.cpp  **** 	adcSamplesNorth += AD0DR0 >> 6;
+  54:sys_init.cpp  **** 	adcSamplesSouth += AD0DR1 >> 6;
+  55:sys_init.cpp  **** 	adcSamplesEast  += AD0DR2 >> 6;
+  56:sys_init.cpp  **** 	adcSamplesWest  += AD0DR3 >> 6;
+  57:sys_init.cpp  **** 
+  58:sys_init.cpp  ****    /* The 1 millisecond counter check. 
+  59:sys_init.cpp  ****    	  128usecs * 8 = 1.024 milliseconds */
+  60:sys_init.cpp  ****    millisCntr+=1;
+  61:sys_init.cpp  ****    if (millisCntr >= 8)
+  62:sys_init.cpp  ****    {
+  63:sys_init.cpp  ****       oneMillisHandler();
+  64:sys_init.cpp  ****       millisCntr = 0;
+  65:sys_init.cpp  ****    }
+  66:sys_init.cpp  **** 
+  67:sys_init.cpp  **** 	/* Exit */
+  68:sys_init.cpp  **** 	VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
+  69:sys_init.cpp  **** 	ISR_EXIT();
+  70:sys_init.cpp  **** }
+  71:sys_init.cpp  **** 
+  72:sys_init.cpp  **** //******************************************
+  73:sys_init.cpp  **** // The one (1.024) millisecond handler.
+  74:sys_init.cpp  **** // This function averages the ADC data.
+  75:sys_init.cpp  **** void oneMillisHandler(void)
+  27              	upports interworking.
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              		.loc 1 79 0
+  76:sys_init.cpp  **** {
+  77:sys_init.cpp  **** 		/* 8 ADC samples taken,
+  78:sys_init.cpp  ****          so lets divide to get the average. */
+  79:sys_init.cpp  **** 	   currentNorth = adcSamplesNorth>>3;
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 3
+
+
+  32              	r3, .L3
+  33 0000 58309FE5 		.loc 1 75 0
+  34              		stmfd	sp!, {r4, r5}
+  35 0004 30002DE9 	.LCFI0:
+  36              		.loc 1 79 0
+  37              		ldr	r0, [r3, #4]
+  38 0008 040093E5 		.loc 1 80 0
+  80:sys_init.cpp  ****       currentSouth = adcSamplesSouth>>3;
+  39              	, [r3, #12]
+  40 000c 0CC093E5 		.loc 1 81 0
+  81:sys_init.cpp  ****       currentEast = adcSamplesEast>>3;
+  41              	dr	r4, [r3, #20]
+  42 0010 144093E5 		.loc 1 82 0
+  82:sys_init.cpp  ****       currentWest = adcSamplesWest>>3;
+  43              	dr	r5, [r3, #28]
+  44 0014 1C5093E5 		.loc 1 89 0
+  83:sys_init.cpp  **** 
+  84:sys_init.cpp  **** 		/* Reset the values. */
+  85:sys_init.cpp  ****       adcSamplesNorth = 0;
+  86:sys_init.cpp  ****       adcSamplesSouth = 0;
+  87:sys_init.cpp  ****       adcSamplesEast  = 0;
+  88:sys_init.cpp  ****       adcSamplesWest  = 0;
+  89:sys_init.cpp  **** 	  millis++;
+  45              	dr	r2, [r3, #32]
+  46 0018 202093E5 		.loc 1 85 0
+  47              		mov	r1, #0
+  48 001c 0010A0E3 		.loc 1 79 0
+  49              		mov	r0, r0, lsr #3
+  50 0020 A001A0E1 		.loc 1 80 0
+  51              		mov	ip, ip, lsr #3
+  52 0024 ACC1A0E1 		.loc 1 81 0
+  53              		mov	r4, r4, lsr #3
+  54 0028 A441A0E1 		.loc 1 82 0
+  55              		mov	r5, r5, lsr #3
+  56 002c A551A0E1 		.loc 1 89 0
+  57              		add	r2, r2, #1
+  58 0030 012082E2 		str	r2, [r3, #32]
+  59 0034 202083E5 		.loc 1 79 0
+  60              		str	r0, [r3, #0]
+  61 0038 000083E5 		.loc 1 80 0
+  62              		str	ip, [r3, #8]
+  63 003c 08C083E5 		.loc 1 81 0
+  64              		str	r4, [r3, #16]
+  65 0040 104083E5 		.loc 1 82 0
+  66              		str	r5, [r3, #24]
+  67 0044 185083E5 		.loc 1 88 0
+  68              		str	r1, [r3, #28]
+  69 0048 1C1083E5 		.loc 1 85 0
+  70              		str	r1, [r3, #4]
+  71 004c 041083E5 		.loc 1 86 0
+  72              		str	r1, [r3, #12]
+  73 0050 0C1083E5 		.loc 1 87 0
+  74              		str	r1, [r3, #20]
+  75 0054 141083E5 		.loc 1 90 0
+  90:sys_init.cpp  **** }
+  76              	:
+  77 0058 3000BDE8 		.align	2
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 4
+
+
+  78 005c 1EFF2FE1 	.L3:
+  79              		.word	.LANCHOR0
+  80              	.LFE3:
+  81              		.cantunwind
+  82 0060 00000000 		.fnend
+  83              		.size	_Z16oneMillisHandlerv, .-_Z16oneMillisHandlerv
+  84              		.align	2
+  85              		.global	_Z7sysInitv
+  86              		.type	_Z7sysInitv, %function
+  87              	_Z7sysInitv:
+  88              		.fnstart
+  89              	.LFB6:
+  90              		.loc 1 211 0
+  91              		@ Function supports interworking.
+  92              		@ args = 0, pretend = 0, frame = 0
+  91:sys_init.cpp  **** 
+  92:sys_init.cpp  **** /******************************************************************************
+  93:sys_init.cpp  ****  *
+  94:sys_init.cpp  ****  * Function Name: configPLL()
+  95:sys_init.cpp  ****  *
+  96:sys_init.cpp  ****  * Description:
+  97:sys_init.cpp  ****  *    This function starts up the PLL then sets up the GPIO pins before
+  98:sys_init.cpp  ****  *    waiting for the PLL to lock.  It finally engages the PLL and
+  99:sys_init.cpp  ****  *    returns
+ 100:sys_init.cpp  ****  *
+ 101:sys_init.cpp  ****  * Calling Sequence: 
+ 102:sys_init.cpp  ****  *    void
+ 103:sys_init.cpp  ****  *
+ 104:sys_init.cpp  ****  * Returns:
+ 105:sys_init.cpp  ****  *    void
+ 106:sys_init.cpp  ****  * partily based on code for NXP example collection
+ 107:sys_init.cpp  ****  *****************************************************************************/
+ 108:sys_init.cpp  **** static void configPLL(void)
+ 109:sys_init.cpp  **** {
+ 110:sys_init.cpp  **** 	uint32_t readback;
+ 111:sys_init.cpp  **** 
+ 112:sys_init.cpp  **** 	// check if PLL connected, disconnect if yes
+ 113:sys_init.cpp  **** 	if ( PLLSTAT & PLLSTAT_PLLC ) {
+ 114:sys_init.cpp  **** 		PLLCON = PLLCON_PLLE;       /* Enable PLL, disconnected ( PLLC = 0 )*/
+ 115:sys_init.cpp  **** 		PLLFEED = 0xaa;
+ 116:sys_init.cpp  **** 		PLLFEED = 0x55;
+ 117:sys_init.cpp  **** 	}
+ 118:sys_init.cpp  **** 
+ 119:sys_init.cpp  **** 	PLLCON  = 0;        /* Disable PLL, disconnected */
+ 120:sys_init.cpp  **** 	PLLFEED = 0xaa;
+ 121:sys_init.cpp  **** 	PLLFEED = 0x55;
+ 122:sys_init.cpp  **** 
+ 123:sys_init.cpp  **** 	SCS |= SCS_OSCEN;   /* Enable main OSC, SCS Man p.28 */
+ 124:sys_init.cpp  **** 	while( !( SCS & SCS_OSCSTAT ) ) {
+ 125:sys_init.cpp  **** 		;	/* Wait until main OSC is usable */
+ 126:sys_init.cpp  **** 	}
+ 127:sys_init.cpp  **** 
+ 128:sys_init.cpp  **** 	CLKSRCSEL = CLKSRC_MAIN_OSC;   /* select main OSC as the PLL clock source */
+ 129:sys_init.cpp  **** 
+ 130:sys_init.cpp  **** 	PLLCFG = PLLCFG_MSEL | PLLCFG_NSEL;
+ 131:sys_init.cpp  **** 	PLLFEED = 0xaa;
+ 132:sys_init.cpp  **** 	PLLFEED = 0x55;
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 5
+
+
+ 133:sys_init.cpp  **** 	
+ 134:sys_init.cpp  **** 	PLLCON = PLLCON_PLLE;       /* Enable PLL, disconnected ( PLLC = 0 ) */
+ 135:sys_init.cpp  **** 	PLLFEED = 0xaa;
+ 136:sys_init.cpp  **** 	PLLFEED = 0x55;
+ 137:sys_init.cpp  **** 	
+ 138:sys_init.cpp  **** 	CCLKCFG = CCLKCFG_CCLKSEL_VAL;     /* Set clock divider, Manual p.45 */
+ 139:sys_init.cpp  **** 
+ 140:sys_init.cpp  **** //#if USE_USB
+ 141:sys_init.cpp  **** //	USBCLKCFG = USBCLKDivValue; /* usbclk = 288 MHz/6 = 48 MHz */
+ 142:sys_init.cpp  **** //#endif
+ 143:sys_init.cpp  **** 	
+ 144:sys_init.cpp  **** 	while ( ( PLLSTAT & PLLSTAT_PLOCK ) == 0 )  {
+ 145:sys_init.cpp  **** 		; /* Check lock bit status */
+ 146:sys_init.cpp  **** 	}
+ 147:sys_init.cpp  **** 	
+ 148:sys_init.cpp  **** 	readback = PLLSTAT & 0x00FF7FFF;
+ 149:sys_init.cpp  **** 	while ( readback != (PLLCFG_MSEL | PLLCFG_NSEL) )
+ 150:sys_init.cpp  **** 	{
+ 151:sys_init.cpp  **** 		; // stall - invalid readback
+ 152:sys_init.cpp  **** 	}
+ 153:sys_init.cpp  **** 	
+ 154:sys_init.cpp  **** 	PLLCON = ( PLLCON_PLLE | PLLCON_PLLC );  /* enable and connect */
+ 155:sys_init.cpp  **** 	PLLFEED = 0xaa;
+ 156:sys_init.cpp  **** 	PLLFEED = 0x55;
+ 157:sys_init.cpp  **** 	while ( ((PLLSTAT & PLLSTAT_PLLC) == 0) ) {
+ 158:sys_init.cpp  **** 		;  /* Check connect bit status, wait for connect */
+ 159:sys_init.cpp  **** 	}
+ 160:sys_init.cpp  **** }
+ 161:sys_init.cpp  **** 
+ 162:sys_init.cpp  **** static void lowInit(void)
+ 163:sys_init.cpp  **** {
+ 164:sys_init.cpp  **** 	configPLL();
+ 165:sys_init.cpp  **** 	
+ 166:sys_init.cpp  **** 	// setup & enable the MAM
+ 167:sys_init.cpp  **** 	MAMCR = MAMCR_OFF;
+ 168:sys_init.cpp  **** #if CCLK < 20000000
+ 169:sys_init.cpp  **** 	MAMTIM = 1;
+ 170:sys_init.cpp  **** #elif CCLK < 40000000
+ 171:sys_init.cpp  **** 	MAMTIM = 2;
+ 172:sys_init.cpp  **** #else
+ 173:sys_init.cpp  **** 	MAMTIM = 3;
+ 174:sys_init.cpp  **** #endif
+ 175:sys_init.cpp  **** 	MAMCR = MAMCR_FULL;
+ 176:sys_init.cpp  **** 	
+ 177:sys_init.cpp  **** 	// set the peripheral bus speed
+ 178:sys_init.cpp  **** 	// value computed from config.h
+ 179:sys_init.cpp  **** 	
+ 180:sys_init.cpp  **** #if PBSD == 4
+ 181:sys_init.cpp  **** 	PCLKSEL0 = 0x00000000;	/* PCLK is 1/4 CCLK */
+ 182:sys_init.cpp  **** 	PCLKSEL1 = 0x00000000;
+ 183:sys_init.cpp  **** #elif PBSD == 2
+ 184:sys_init.cpp  **** 	PCLKSEL0 = 0xAAAAAAAA;	/* PCLK is 1/2 CCLK */
+ 185:sys_init.cpp  **** 	PCLKSEL1 = 0xAAAAAAAA;
+ 186:sys_init.cpp  **** #elif PBSD == 1
+ 187:sys_init.cpp  **** 	PCLKSEL0 = 0x55555555;	/* PCLK is the same as CCLK */
+ 188:sys_init.cpp  **** 	PCLKSEL1 = 0x55555555;
+ 189:sys_init.cpp  **** #else
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 6
+
+
+ 190:sys_init.cpp  **** #error invalid p-clock divider    
+ 191:sys_init.cpp  **** #endif
+ 192:sys_init.cpp  **** 
+ 193:sys_init.cpp  **** 	return;
+ 194:sys_init.cpp  **** }
+ 195:sys_init.cpp  **** 
+ 196:sys_init.cpp  **** /******************************************************************************
+ 197:sys_init.cpp  ****  *
+ 198:sys_init.cpp  ****  * Function Name: sysInit()
+ 199:sys_init.cpp  ****  *
+ 200:sys_init.cpp  ****  * Description:
+ 201:sys_init.cpp  ****  *    This function is responsible for initializing the program
+ 202:sys_init.cpp  ****  *    specific hardware
+ 203:sys_init.cpp  ****  *
+ 204:sys_init.cpp  ****  * Calling Sequence: 
+ 205:sys_init.cpp  ****  *    void
+ 206:sys_init.cpp  ****  *
+ 207:sys_init.cpp  ****  * Returns:
+ 208:sys_init.cpp  ****  *    void
+ 209:sys_init.cpp  ****  *
+ 210:sys_init.cpp  ****  *****************************************************************************/
+ 211:sys_init.cpp  **** void sysInit(void)
+  93              	 0, uses_anonymous_args = 0
+  94              		@ link register save eliminated.
+  95              	.LBB15:
+  96              	.LBB16:
+  97              	.LBB19:
+  98              	.LBB21:
+  99              	.LBB22:
+ 100              	.LBB23:
+ 101              		.loc 1 113 0
+ 102              		mov	r1, #-536870912
+ 103              		add	r1, r1, #2080768
+ 104              		ldr	r3, [r1, #136]
+ 105 0064 0E12A0E3 		tst	r3, #33554432
+ 106 0068 7F1981E2 	.LBE23:
+ 107 006c 883091E5 	.LBE22:
+ 108 0070 020413E3 	.LBE21:
+ 109              	.LBE19:
+ 110              	.LBE16:
+ 111              	.LBE15:
+ 112              		.loc 1 211 0
+ 113              		str	r4, [sp, #-4]!
+ 114              	.LCFI1:
+ 115              	.LBB40:
+ 116 0074 04402DE5 	.LBB28:
+ 117              	.LBB18:
+ 118              	.LBB20:
+ 119              	.LBB25:
+ 120              	.LBB24:
+ 121              		.loc 1 113 0
+ 122              		beq	.L6
+ 123              		.loc 1 114 0
+ 124              		mov	r3, #1
+ 125 0078 0500000A 		str	r3, [r1, #128]
+ 126              		.loc 1 115 0
+ 127 007c 0130A0E3 		mov	r2, #170
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 7
+
+
+ 128 0080 803081E5 		.loc 1 116 0
+ 129              		add	r3, r3, #84
+ 130 0084 AA20A0E3 		.loc 1 115 0
+ 131              		str	r2, [r1, #140]
+ 132 0088 543083E2 		.loc 1 116 0
+ 133              		str	r3, [r1, #140]
+ 134 008c 8C2081E5 	.L6:
+ 135              		.loc 1 119 0
+ 136 0090 8C3081E5 		mov	r2, #-536870912
+ 137              		add	r2, r2, #2080768
+ 138              		mov	r3, #0
+ 139 0094 0E22A0E3 		.loc 1 120 0
+ 140 0098 7F2982E2 		mov	r1, #170
+ 141 009c 0030A0E3 		.loc 1 121 0
+ 142              		mov	r0, #85
+ 143 00a0 AA10A0E3 		.loc 1 119 0
+ 144              		str	r3, [r2, #128]
+ 145 00a4 5500A0E3 		.loc 1 120 0
+ 146              		str	r1, [r2, #140]
+ 147 00a8 803082E5 		.loc 1 121 0
+ 148              		str	r0, [r2, #140]
+ 149 00ac 8C1082E5 		.loc 1 123 0
+ 150              		ldr	r3, [r2, #416]
+ 151 00b0 8C0082E5 		orr	r3, r3, #32
+ 152              		str	r3, [r2, #416]
+ 153 00b4 A03192E5 	.L7:
+ 154 00b8 203083E3 		.loc 1 124 0
+ 155 00bc A03182E5 		ldr	r3, [r2, #416]
+ 156              		mov	ip, #-536870912
+ 157              		tst	r3, #64
+ 158 00c0 A03192E5 		add	ip, ip, #2080768
+ 159 00c4 0EC2A0E3 		beq	.L7
+ 160 00c8 400013E3 		.loc 1 128 0
+ 161 00cc 7FC98CE2 		mov	r2, #1
+ 162 00d0 FAFFFF0A 		.loc 1 130 0
+ 163              		mov	r3, #11
+ 164 00d4 0120A0E3 		.loc 1 128 0
+ 165              		str	r2, [ip, #268]
+ 166 00d8 0B30A0E3 		.loc 1 131 0
+ 167              		mov	r1, #170
+ 168 00dc 0C218CE5 		.loc 1 130 0
+ 169              		str	r3, [ip, #132]
+ 170 00e0 AA10A0E3 		.loc 1 132 0
+ 171              		mov	r0, #85
+ 172 00e4 84308CE5 		.loc 1 138 0
+ 173              		sub	r3, r3, #8
+ 174 00e8 5500A0E3 		.loc 1 131 0
+ 175              		str	r1, [ip, #140]
+ 176 00ec 083043E2 		.loc 1 132 0
+ 177              		str	r0, [ip, #140]
+ 178 00f0 8C108CE5 		.loc 1 134 0
+ 179              		str	r2, [ip, #128]
+ 180 00f4 8C008CE5 		.loc 1 135 0
+ 181              		str	r1, [ip, #140]
+ 182 00f8 80208CE5 		.loc 1 136 0
+ 183              		str	r0, [ip, #140]
+ 184 00fc 8C108CE5 		.loc 1 138 0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 8
+
+
+ 185              		str	r3, [ip, #260]
+ 186 0100 8C008CE5 		.loc 1 144 0
+ 187              		mov	r2, ip
+ 188 0104 04318CE5 	.L8:
+ 189              		ldr	r3, [r2, #136]
+ 190 0108 0C20A0E1 		mov	r1, #-536870912
+ 191              		tst	r3, #67108864
+ 192 010c 883092E5 		add	r1, r1, #2080768
+ 193 0110 0E12A0E3 		beq	.L8
+ 194 0114 010313E3 		.loc 1 148 0
+ 195 0118 7F1981E2 		ldr	r3, [r1, #136]
+ 196 011c FAFFFF0A 		.loc 1 149 0
+ 197              		bic	r3, r3, #-16777216
+ 198 0120 883091E5 		bic	r3, r3, #32768
+ 199              		cmp	r3, #11
+ 200 0124 FF34C3E3 		bne	.L9
+ 201 0128 0239C3E3 		.loc 1 154 0
+ 202 012c 0B0053E3 		sub	r3, r3, #8
+ 203 0130 4400001A 		str	r3, [r1, #128]
+ 204              		.loc 1 155 0
+ 205 0134 083043E2 		mov	r2, #170
+ 206 0138 803081E5 		.loc 1 156 0
+ 207              		add	r3, r3, #82
+ 208 013c AA20A0E3 		.loc 1 155 0
+ 209              		str	r2, [r1, #140]
+ 210 0140 523083E2 		.loc 1 156 0
+ 211              		str	r3, [r1, #140]
+ 212 0144 8C2081E5 		.loc 1 157 0
+ 213              		mov	r2, r1
+ 214 0148 8C3081E5 	.L10:
+ 215              		ldr	r3, [r2, #136]
+ 216 014c 0120A0E1 		mov	ip, #-536870912
+ 217              		tst	r3, #33554432
+ 218 0150 883092E5 		add	ip, ip, #2080768
+ 219 0154 0EC2A0E3 		beq	.L10
+ 220 0158 020413E3 	.LBE24:
+ 221 015c 7FC98CE2 	.LBE25:
+ 222 0160 FAFFFF0A 	.LBE20:
+ 223              		.loc 1 167 0
+ 224              		mov	r2, #0
+ 225              		.loc 1 173 0
+ 226              		mov	r3, #3
+ 227 0164 0020A0E3 		.loc 1 167 0
+ 228              		str	r2, [ip, #0]
+ 229 0168 0330A0E3 	.LBE18:
+ 230              	.LBE28:
+ 231 016c 00208CE5 		.loc 1 229 0
+ 232              		mvn	r1, #0
+ 233              	.LBB29:
+ 212:sys_init.cpp  **** {
+ 213:sys_init.cpp  **** 	uint32_t i = 0;
+ 214:sys_init.cpp  **** 	volatile uint32_t *vect_addr, *vect_prio;
+ 215:sys_init.cpp  **** 
+ 216:sys_init.cpp  **** 	lowInit();                            // setup clocks and processor port pins
+ 217:sys_init.cpp  **** 
+ 218:sys_init.cpp  **** 	// set the interrupt controller defaults
+ 219:sys_init.cpp  **** //   MEMMAP = 0;
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 9
+
+
+ 220:sys_init.cpp  **** //#if defined(RAM_RUN)
+ 221:sys_init.cpp  **** 	MEMMAP = MEMMAP_SRAM;                 // map interrupt vectors space into SRAM
+ 222:sys_init.cpp  **** //#elif defined(ROM_RUN)
+ 223:sys_init.cpp  **** //	MEMMAP = MEMMAP_FLASH;                // map interrupt vectors space into FLASH
+ 224:sys_init.cpp  **** //#else
+ 225:sys_init.cpp  **** //#error RUN_MODE not defined!
+ 226:sys_init.cpp  **** //#endif
+ 227:sys_init.cpp  **** 	
+ 228:sys_init.cpp  **** 	/* initialize VIC */
+ 229:sys_init.cpp  **** 	VICIntEnClr  = 0xffffffff;
+ 234              	:
+ 235 0170 0010E0E3 	.LBB17:
+ 236              		.loc 1 175 0
+ 237              		str	r0, [ip, #0]
+ 238              	.LBE17:
+ 239 0174 04308CE5 	.LBE30:
+ 240              		.loc 1 231 0
+ 241 0178 0200A0E3 		mov	r3, r3, asr #19
+ 242              	.LBB31:
+ 243              	.LBB27:
+ 230:sys_init.cpp  **** 	VICVectAddr  = 0x00000000;
+ 231:sys_init.cpp  **** 	VICIntSelect = 0x00000000; /* all IRQ */
+ 244              	1 0
+ 245 017c DE3343E2 		str	r2, [ip, #424]
+ 246 0180 C4409FE5 		.loc 1 182 0
+ 247              		str	r2, [ip, #428]
+ 248              	.LBE27:
+ 249              	.LBE31:
+ 250 0184 00008CE5 		.loc 1 221 0
+ 251              		str	r0, [ip, #64]
+ 252              		.loc 1 229 0
+ 253              		str	r1, [r1, #-4075]
+ 254 0188 C339A0E1 		.loc 1 230 0
+ 255              		str	r2, [r1, #-255]
+ 256              		.loc 1 231 0
+ 257              		str	r2, [r1, #-4083]
+ 258 018c A8218CE5 		.loc 1 238 0
+ 259              		add	r2, r2, #15
+ 260 0190 AC218CE5 	.L11:
+ 261              		.loc 1 237 0
+ 262              		str	r4, [r3, #0]
+ 263              		.loc 1 238 0
+ 264 0194 40008CE5 		str	r2, [r3, #256]
+ 265              		add	r3, r3, #4
+ 266 0198 EB1F01E5 		.loc 1 234 0
+ 267              		cmn	r3, #3712
+ 268 019c FF2001E5 		bne	.L11
+ 269              	.LBB32:
+ 270 01a0 F32F01E5 	.LBB33:
+ 232:sys_init.cpp  **** 	
+ 233:sys_init.cpp  **** 	/* set all the vector and vector control register to 0 */
+ 234:sys_init.cpp  **** 	for ( i = 0; i < 32; i++ ) {
+ 235:sys_init.cpp  **** 		vect_addr = (uint32_t *)(VIC_BASE_ADDR + VECT_ADDR_INDEX + i*4);
+ 236:sys_init.cpp  **** 		vect_prio = (uint32_t *)(VIC_BASE_ADDR + VECT_PRIO_INDEX + i*4);
+ 237:sys_init.cpp  **** 		*vect_addr = (uint32_t)sysTimeISR;
+ 238:sys_init.cpp  **** 		*vect_prio = 0x0000000F;
+ 271              	ldr	r3, [r1, #-4083]
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 10
+
+
+ 272 01a4 0F2082E2 		.loc 1 265 0
+ 273              		mov	ip, #1
+ 274              		.loc 1 263 0
+ 275 01a8 004083E5 		mov	r0, #16
+ 276              		.loc 1 262 0
+ 277 01ac 002183E5 		bic	r3, r3, #16
+ 278 01b0 043083E2 		str	r3, [r1, #-4083]
+ 279              		.loc 1 269 0
+ 280 01b4 3A0D73E3 		mov	r2, #-536870912
+ 281 01b8 FAFFFF1A 		.loc 1 263 0
+ 282              		str	r0, [r1, #-4075]
+ 283              		.loc 1 264 0
+ 239:sys_init.cpp  **** 	}
+ 240:sys_init.cpp  **** 	
+ 241:sys_init.cpp  **** 	 initSysTime();                        // initialize the system timer
+ 242:sys_init.cpp  ****     initADC();
+ 243:sys_init.cpp  **** 
+ 244:sys_init.cpp  **** 	SCS |= (1UL<<0); // set GPIOM in SCS for fast IO
+ 245:sys_init.cpp  **** }
+ 246:sys_init.cpp  **** 
+ 247:sys_init.cpp  **** //**********************************
+ 248:sys_init.cpp  **** //* Setup the ADC converter
+ 249:sys_init.cpp  **** void initADC(void)
+ 250:sys_init.cpp  **** { 
+ 251:sys_init.cpp  ****    AD0CR |= /* Power on          */ (1 << 21) | 
+ 252:sys_init.cpp  ****             /* Selected Channels */ (0xFF << 0);
+ 253:sys_init.cpp  ****    AD0CR |= (1 <<  16); //burst
+ 254:sys_init.cpp  **** }
+ 255:sys_init.cpp  **** 
+ 256:sys_init.cpp  **** //***************************
+ 257:sys_init.cpp  **** //* Setup the timers 
+ 258:sys_init.cpp  **** void initSysTime(void)
+ 259:sys_init.cpp  **** {
+ 260:sys_init.cpp  **** 
+ 261:sys_init.cpp  **** 	/* Setup the interrupt */
+ 262:sys_init.cpp  **** 	VICIntSelect &= ~(VIC_CHAN_TO_MASK(VIC_CHAN_NUM_Timer0));
+ 284              	 #-3823]
+ 285 01bc 0010E0E3 		.loc 1 265 0
+ 286 01c0 F33F11E5 		str	ip, [r1, #-3567]
+ 263:sys_init.cpp  **** 	VICIntEnClr  = VIC_CHAN_TO_MASK(VIC_CHAN_NUM_Timer0);
+ 264:sys_init.cpp  **** 	VICVectAddr4 = (uint32_t)sysTimeISR;
+ 265:sys_init.cpp  **** 	VICVectPriority4 = 0x01;
+ 287              	oc 1 266 0
+ 288 01c4 01C0A0E3 		str	r0, [r1, #-4079]
+ 289              		.loc 1 269 0
+ 290 01c8 1000A0E3 		add	r2, r2, #16384
+ 291              		ldr	r3, [r2, #8]
+ 292 01cc 1030C3E3 		add	r3, r3, #2288
+ 293 01d0 F33F01E5 		add	r3, r3, #15
+ 266:sys_init.cpp  **** 	VICIntEnable = VIC_CHAN_TO_MASK(VIC_CHAN_NUM_Timer0);
+ 267:sys_init.cpp  **** 
+ 268:sys_init.cpp  **** 	/* Setup timer 0 */
+ 269:sys_init.cpp  **** 	T0MR0 = T0TC + SYSTIME_INT_DT - 1;
+ 294              	, [r2, #24]
+ 295 01d4 0E22A0E3 	.LBE33:
+ 296              	.LBE32:
+ 297 01d8 EB0F01E5 	.LBB35:
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 11
+
+
+ 298              	.LBB36:
+ 299 01dc EF4E01E5 		.loc 1 252 0
+ 300              		mov	r0, #-536870912
+ 301 01e0 EFCD01E5 	.LBE36:
+ 302              	.LBE35:
+ 303 01e4 EF0F01E5 	.LBB38:
+ 304              	.LBB34:
+ 305 01e8 012982E2 		.loc 1 270 0
+ 306 01ec 083092E5 		str	ip, [r2, #20]
+ 307 01f0 8F3E83E2 		.loc 1 271 0
+ 308 01f4 0F3083E2 		str	ip, [r2, #0]
+ 309 01f8 183082E5 		.loc 1 272 0
+ 310              		str	ip, [r2, #4]
+ 311              	.LBE34:
+ 312              	.LBE38:
+ 313              	.LBB39:
+ 314              	.LBB37:
+ 315 01fc 0E02A0E3 		.loc 1 252 0
+ 316              		add	r0, r0, #212992
+ 317              		ldr	r3, [r0, #0]
+ 318              		orr	r3, r3, #2097152
+ 319              		orr	r3, r3, #255
+ 270:sys_init.cpp  **** 	T0MCR = TxMCR_MR0I;        // interrupt on cmp-match0
+ 320              	253 0
+ 321 0200 14C082E5 		ldr	r2, [r0, #0]
+ 271:sys_init.cpp  **** 	T0IR  = TxIR_MR0_Interrupt; // clear match0 interrupt
+ 322              	rr	r2, r2, #65536
+ 323 0204 00C082E5 		str	r2, [r0, #0]
+ 272:sys_init.cpp  **** 	T0TCR = TxTCR_Counter_Enable;         // enable timer 0
+ 324              	BE37:
+ 325 0208 04C082E5 	.LBE39:
+ 326              		.loc 1 244 0
+ 327              		add	r1, r1, #-536870911
+ 328              		add	r1, r1, #2080768
+ 329              		ldr	r3, [r1, #416]
+ 330              		orr	r3, r3, ip
+ 331 020c 0D0980E2 		str	r3, [r1, #416]
+ 332 0210 003090E5 	.LBE40:
+ 333 0214 023683E3 		.loc 1 245 0
+ 334 0218 FF3083E3 		ldmfd	sp!, {r4}
+ 335 021c 003080E5 		bx	lr
+ 336              	.L9:
+ 337 0220 002090E5 	.L17:
+ 338 0224 012882E3 		b	.L17
+ 339 0228 002080E5 	.L20:
+ 340              		.align	2
+ 341              	.L19:
+ 342              		.word	_Z10sysTimeISRv
+ 343 022c 1E1281E2 	.LFE6:
+ 344 0230 7F1981E2 		.cantunwind
+ 345 0234 A03191E5 		.fnend
+ 346 0238 0C3083E1 		.size	_Z7sysInitv, .-_Z7sysInitv
+ 347 023c A03181E5 		.align	2
+ 348              		.global	_Z7initADCv
+ 349              		.type	_Z7initADCv, %function
+ 350 0240 1000BDE8 	_Z7initADCv:
+ 351 0244 1EFF2FE1 		.fnstart
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 12
+
+
+ 352              	.LFB7:
+ 353              		.loc 1 249 0
+ 354 0248 FEFFFFEA 		@ Function supports interworking.
+ 355              		@ args = 0, pretend = 0, frame = 0
+ 356              		@ frame_needed = 0, uses_anonymous_args = 0
+ 357              		@ link register save eliminated.
+ 358 024c 00000000 		.loc 1 252 0
+ 359              		mov	r1, #-536870912
+ 360              		add	r1, r1, #212992
+ 361              		ldr	r2, [r1, #0]
+ 362              		mov	r3, #2097152
+ 363              		add	r3, r3, #255
+ 364              		orr	r2, r2, r3
+ 365              		str	r2, [r1, #0]
+ 366              		.loc 1 253 0
+ 367              		ldr	r3, [r1, #0]
+ 368              		orr	r3, r3, #65536
+ 369              		str	r3, [r1, #0]
+ 370              		.loc 1 254 0
+ 371              		bx	lr
+ 372              	.LFE7:
+ 373              		.cantunwind
+ 374              		.fnend
+ 375 0250 0E12A0E3 		.size	_Z7initADCv, .-_Z7initADCv
+ 376 0254 0D1981E2 		.align	2
+ 377 0258 002091E5 		.global	_Z10sysTimeISRv
+ 378 025c 0236A0E3 		.type	_Z10sysTimeISRv, %function
+ 379 0260 FF3083E2 	_Z10sysTimeISRv:
+ 380 0264 032082E1 		.fnstart
+ 381 0268 002081E5 	.LFB2:
+ 382              		.loc 1 45 0
+ 383 026c 003091E5 		@ Function supports interworking.
+ 384 0270 013883E3 		@ Naked Function: prologue and epilogue provided by programmer.
+ 385 0274 003081E5 		@ args = 0, pretend = 0, frame = 0
+ 386              		@ frame_needed = 0, uses_anonymous_args = 0
+ 387 0278 1EFF2FE1 		.loc 1 48 0
+ 388              	@ 48 "sys_init.cpp" 1
+ 389              		 sub   lr, lr,#4
+ 390              	 stmfd sp!,{r0-r12,lr}
+ 391              	 mrs   r1, spsr
+ 392              	 stmfd sp!,{r1}
+ 393              	@ 0 "" 2
+ 394              		.loc 1 49 0
+ 395              		mov	r1, #-536870912
+ 396              		add	r1, r1, #16384
+ 397              		ldr	r3, [r1, #24]
+ 398              		add	r3, r3, #2288
+ 399              		add	r3, r3, #15
+ 400              		.loc 1 50 0
+ 401              		mov	r2, #1
+ 402              		.loc 1 53 0
+ 403              		ldr	r8, .L26
+ 404              		.loc 1 49 0
+ 405 027c 04E04EE2 		str	r3, [r1, #24]
+ 406 0280 FF5F2DE9 		.loc 1 50 0
+ 407 0284 00104FE1 		str	r2, [r1, #0]
+ 408 0288 02002DE9 		.loc 1 53 0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 13
+
+
+ 409              		mov	r3, #-536870912
+ 410              		.loc 1 60 0
+ 411 028c 0E12A0E3 		ldrb	r2, [r8, #36]	@ zero_extendqisi2
+ 412 0290 011981E2 		.loc 1 53 0
+ 413 0294 183091E5 		add	r3, r3, #212992
+ 414 0298 8F3E83E2 		ldr	r7, [r3, #16]
+ 415 029c 0F3083E2 		ldr	r5, [r8, #4]
+ 416              		.loc 1 54 0
+ 417 02a0 0120A0E3 		ldr	r6, [r3, #20]
+ 418              		ldr	r0, [r8, #12]
+ 419 02a4 C0809FE5 		.loc 1 55 0
+ 420              		ldr	ip, [r3, #24]
+ 421 02a8 183081E5 		ldr	r1, [r8, #20]
+ 422              		.loc 1 56 0
+ 423 02ac 002081E5 		ldr	r4, [r3, #28]
+ 424              		.loc 1 60 0
+ 425 02b0 0E32A0E3 		add	r2, r2, #1
+ 426              		.loc 1 56 0
+ 427 02b4 2420D8E5 		ldr	r3, [r8, #28]
+ 428              		.loc 1 60 0
+ 429 02b8 0D3983E2 		and	r2, r2, #255
+ 430 02bc 107093E5 		.loc 1 53 0
+ 431 02c0 045098E5 		add	r5, r5, r7, lsr #6
+ 432              		.loc 1 54 0
+ 433 02c4 146093E5 		add	r0, r0, r6, lsr #6
+ 434 02c8 0C0098E5 		.loc 1 55 0
+ 435              		add	ip, r1, ip, lsr #6
+ 436 02cc 18C093E5 		.loc 1 56 0
+ 437 02d0 141098E5 		add	r4, r3, r4, lsr #6
+ 438              		.loc 1 61 0
+ 439 02d4 1C4093E5 		cmp	r2, #7
+ 440              		.loc 1 53 0
+ 441 02d8 012082E2 		str	r5, [r8, #4]
+ 442              		.loc 1 54 0
+ 443 02dc 1C3098E5 		str	r0, [r8, #12]
+ 444              		.loc 1 55 0
+ 445 02e0 FF2002E2 		str	ip, [r8, #20]
+ 446              		.loc 1 56 0
+ 447 02e4 275385E0 		str	r4, [r8, #28]
+ 448              		.loc 1 60 0
+ 449 02e8 260380E0 		strb	r2, [r8, #36]
+ 450              		.loc 1 61 0
+ 451 02ec 2CC381E0 		bls	.L24
+ 452              	.LBB43:
+ 453 02f0 244383E0 	.LBB44:
+ 454              		.loc 1 89 0
+ 455 02f4 070052E3 		ldr	r2, [r8, #32]
+ 456              		.loc 1 85 0
+ 457 02f8 045088E5 		mov	r3, #0
+ 458              		.loc 1 79 0
+ 459 02fc 0C0088E5 		mov	r1, r5, lsr #3
+ 460              		.loc 1 80 0
+ 461 0300 14C088E5 		mov	r0, r0, lsr #3
+ 462              		.loc 1 81 0
+ 463 0304 1C4088E5 		mov	ip, ip, lsr #3
+ 464              		.loc 1 82 0
+ 465 0308 2420C8E5 		mov	r4, r4, lsr #3
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 14
+
+
+ 466              		.loc 1 89 0
+ 467 030c 1000009A 		add	r2, r2, #1
+ 468              	.LBE44:
+ 469              	.LBE43:
+ 470              		.loc 1 64 0
+ 471 0310 202098E5 		strb	r3, [r8, #36]
+ 472              	.LBB46:
+ 473 0314 0030A0E3 	.LBB45:
+ 474              		.loc 1 79 0
+ 475 0318 A511A0E1 		str	r1, [r8, #0]
+ 476              		.loc 1 80 0
+ 477 031c A001A0E1 		str	r0, [r8, #8]
+ 478              		.loc 1 81 0
+ 479 0320 ACC1A0E1 		str	ip, [r8, #16]
+ 480              		.loc 1 82 0
+ 481 0324 A441A0E1 		str	r4, [r8, #24]
+ 482              		.loc 1 89 0
+ 483 0328 012082E2 		str	r2, [r8, #32]
+ 484              		.loc 1 85 0
+ 485              		str	r3, [r8, #4]
+ 486              		.loc 1 86 0
+ 487 032c 2430C8E5 		str	r3, [r8, #12]
+ 488              		.loc 1 87 0
+ 489              		str	r3, [r8, #20]
+ 490              		.loc 1 88 0
+ 491 0330 001088E5 		str	r3, [r8, #28]
+ 492              	.L24:
+ 493 0334 080088E5 	.LBE45:
+ 494              	.LBE46:
+ 495 0338 10C088E5 		.loc 1 68 0
+ 496              		mov	r2, #0
+ 497 033c 184088E5 		mvn	r3, #0
+ 498              		str	r2, [r3, #-255]
+ 499 0340 202088E5 		.loc 1 69 0
+ 500              	@ 69 "sys_init.cpp" 1
+ 501 0344 043088E5 		 ldmfd sp!,{r1}
+ 502              	 msr   spsr_c,r1
+ 503 0348 0C3088E5 	 ldmfd sp!,{r0-r12,pc}^
+ 504              	@ 0 "" 2
+ 505 034c 143088E5 		.loc 1 70 0
+ 506              	.L27:
+ 507 0350 1C3088E5 		.align	2
+ 508              	.L26:
+ 509              		.word	.LANCHOR0
+ 510              	.LFE2:
+ 511              		.cantunwind
+ 512 0354 0020A0E3 		.fnend
+ 513 0358 0030E0E3 		.size	_Z10sysTimeISRv, .-_Z10sysTimeISRv
+ 514 035c FF2003E5 		.global	adcSamplesNorth
+ 515              		.global	adcSamplesSouth
+ 516              		.global	adcSamplesEast
+ 517 0360 0200BDE8 		.global	adcSamplesWest
+ 518 0364 01F061E1 		.global	currentNorth
+ 519 0368 FF9FFDE8 		.global	currentSouth
+ 520              		.global	currentEast
+ 521              		.global	currentWest
+ 522              		.global	millisCntr
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 15
+
+
+ 523              		.global	millis
+ 524              		.bss
+ 525 036c 00000000 		.align	2
+ 526              		.set	.LANCHOR0,. + 0
+ 527              		.type	currentNorth, %object
+ 528              		.size	currentNorth, 4
+ 529              	currentNorth:
+ 530              		.space	4
+ 531              		.type	adcSamplesNorth, %object
+ 532              		.size	adcSamplesNorth, 4
+ 533              	adcSamplesNorth:
+ 534              		.space	4
+ 535              		.type	currentSouth, %object
+ 536              		.size	currentSouth, 4
+ 537              	currentSouth:
+ 538              		.space	4
+ 539              		.type	adcSamplesSouth, %object
+ 540              		.size	adcSamplesSouth, 4
+ 541              	adcSamplesSouth:
+ 542              		.space	4
+ 543              		.type	currentEast, %object
+ 544              		.size	currentEast, 4
+ 545              	currentEast:
+ 546 0000 00000000 		.space	4
+ 547              		.type	adcSamplesEast, %object
+ 548              		.size	adcSamplesEast, 4
+ 549              	adcSamplesEast:
+ 550 0004 00000000 		.space	4
+ 551              		.type	currentWest, %object
+ 552              		.size	currentWest, 4
+ 553              	currentWest:
+ 554 0008 00000000 		.space	4
+ 555              		.type	adcSamplesWest, %object
+ 556              		.size	adcSamplesWest, 4
+ 557              	adcSamplesWest:
+ 558 000c 00000000 		.space	4
+ 559              		.type	millis, %object
+ 560              		.size	millis, 4
+ 561              	millis:
+ 562 0010 00000000 		.space	4
+ 563              		.type	millisCntr, %object
+ 564              		.size	millisCntr, 1
+ 565              	millisCntr:
+ 566 0014 00000000 		.space	1
+ 567              		.section	.debug_frame,"",%progbits
+ 568              	.Lframe0:
+ 569              		.4byte	.LECIE0-.LSCIE0
+ 570 0018 00000000 	.LSCIE0:
+ 571              		.4byte	0xffffffff
+ 572              		.byte	0x1
+ 573              		.ascii	"\000"
+ 574 001c 00000000 		.uleb128 0x1
+ 575              		.sleb128 -4
+ 576              		.byte	0xe
+ 577              		.byte	0xc
+ 578 0020 00000000 		.uleb128 0xd
+ 579              		.uleb128 0x0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 16
+
+
+ 580              		.align	2
+ 581              	.LECIE0:
+ 582 0024 00       	.LSFDE0:
+ 583 0025 000000   		.4byte	.LEFDE0-.LASFDE0
+ 584              	.LASFDE0:
+ 585 0000 0C000000 		.4byte	.Lframe0
+ 586              		.4byte	.LFB3
+ 587 0004 FFFFFFFF 		.4byte	.LFE3-.LFB3
+ 588 0008 01       		.byte	0x4
+ 589 0009 00       		.4byte	.LCFI0-.LFB3
+ 590 000a 01       		.byte	0xe
+ 591 000b 7C       		.uleb128 0x8
+ 592 000c 0E       		.byte	0x85
+ 593 000d 0C       		.uleb128 0x1
+ 594 000e 0D       		.byte	0x84
+ 595 000f 00       		.uleb128 0x2
+ 596              		.align	2
+ 597              	.LEFDE0:
+ 598              	.LSFDE2:
+ 599 0010 14000000 		.4byte	.LEFDE2-.LASFDE2
+ 600              	.LASFDE2:
+ 601 0014 00000000 		.4byte	.Lframe0
+ 602 0018 00000000 		.4byte	.LFB6
+ 603 001c 64000000 		.4byte	.LFE6-.LFB6
+ 604 0020 48       		.byte	0x4
+ 605              		.4byte	.LCFI1-.LFB6
+ 606 0021 0E       		.byte	0xe
+ 607 0022 08       		.uleb128 0x4
+ 608 0023 85       		.byte	0x84
+ 609 0024 01       		.uleb128 0x1
+ 610 0025 84       		.align	2
+ 611 0026 02       	.LEFDE2:
+ 612 0027 00       	.LSFDE4:
+ 613              		.4byte	.LEFDE4-.LASFDE4
+ 614              	.LASFDE4:
+ 615 0028 14000000 		.4byte	.Lframe0
+ 616              		.4byte	.LFB7
+ 617 002c 00000000 		.4byte	.LFE7-.LFB7
+ 618 0030 64000000 		.align	2
+ 619 0034 EC010000 	.LEFDE4:
+ 620 0038 54       	.LSFDE6:
+ 621              		.4byte	.LEFDE6-.LASFDE6
+ 622 0039 0E       	.LASFDE6:
+ 623 003a 04       		.4byte	.Lframe0
+ 624 003b 84       		.4byte	.LFB2
+ 625 003c 01       		.4byte	.LFE2-.LFB2
+ 626 003d 000000   		.align	2
+ 627              	.LEFDE6:
+ 628              		.text
+ 629 0040 0C000000 	.Letext0:
+ 630              		.section	.debug_loc,"",%progbits
+ 631 0044 00000000 	.Ldebug_loc0:
+ 632 0048 50020000 	.LLST0:
+ 633 004c 2C000000 		.4byte	.LFB3-.Ltext0
+ 634              		.4byte	.LCFI0-.Ltext0
+ 635              		.2byte	0x1
+ 636              		.byte	0x5d
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 17
+
+
+ 637 0050 0C000000 		.4byte	.LCFI0-.Ltext0
+ 638              		.4byte	.LFE3-.Ltext0
+ 639 0054 00000000 		.2byte	0x2
+ 640 0058 7C020000 		.byte	0x7d
+ 641 005c F4000000 		.sleb128 8
+ 642              		.4byte	0x0
+ 643              		.4byte	0x0
+ 644              	.LLST1:
+ 645              		.4byte	.LFB6-.Ltext0
+ 646              		.4byte	.LCFI1-.Ltext0
+ 647              		.2byte	0x1
+ 648              		.byte	0x5d
+ 649 0000 00000000 		.4byte	.LCFI1-.Ltext0
+ 650 0004 08000000 		.4byte	.LFE6-.Ltext0
+ 651 0008 0100     		.2byte	0x2
+ 652 000a 5D       		.byte	0x7d
+ 653 000b 08000000 		.sleb128 4
+ 654 000f 64000000 		.4byte	0x0
+ 655 0013 0200     		.4byte	0x0
+ 656 0015 7D       		.file 2 "c:\\program files\\codesourcery\\sourcery g++ lite\\bin\\../lib/gcc/arm-none-eabi/4.3.2/.
+ 657 0016 08       		.section	.debug_info
+ 658 0017 00000000 		.4byte	0x245
+ 659 001b 00000000 		.2byte	0x2
+ 660              		.4byte	.Ldebug_abbrev0
+ 661 001f 64000000 		.byte	0x4
+ 662 0023 78000000 		.uleb128 0x1
+ 663 0027 0100     		.4byte	.LASF31
+ 664 0029 5D       		.byte	0x4
+ 665 002a 78000000 		.4byte	.LASF32
+ 666 002e 50020000 		.4byte	.LASF33
+ 667 0032 0200     		.4byte	.Ltext0
+ 668 0034 7D       		.4byte	.Letext0
+ 669 0035 04       		.4byte	.Ldebug_line0
+ 670 0036 00000000 		.uleb128 0x2
+ 671 003a 00000000 		.byte	0x1
+ 672              		.byte	0x6
+ 673              		.4byte	.LASF0
+ 674 0000 45020000 		.uleb128 0x2
+ 675 0004 0200     		.byte	0x1
+ 676 0006 00000000 		.byte	0x8
+ 677 000a 04       		.4byte	.LASF1
+ 678 000b 01       		.uleb128 0x2
+ 679 000c 43000000 		.byte	0x2
+ 680 0010 04       		.byte	0x5
+ 681 0011 1B000000 		.4byte	.LASF2
+ 682 0015 51000000 		.uleb128 0x2
+ 683 0019 00000000 		.byte	0x2
+ 684 001d 70030000 		.byte	0x7
+ 685 0021 00000000 		.4byte	.LASF3
+ 686 0025 02       		.uleb128 0x2
+ 687 0026 01       		.byte	0x4
+ 688 0027 06       		.byte	0x5
+ 689 0028 C3010000 		.4byte	.LASF4
+ 690 002c 02       		.uleb128 0x3
+ 691 002d 01       		.4byte	.LASF34
+ 692 002e 08       		.byte	0x2
+ 693 002f A0000000 		.byte	0x54
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 18
+
+
+ 694 0033 02       		.4byte	0x53
+ 695 0034 02       		.uleb128 0x2
+ 696 0035 05       		.byte	0x4
+ 697 0036 6F010000 		.byte	0x7
+ 698 003a 02       		.4byte	.LASF5
+ 699 003b 02       		.uleb128 0x2
+ 700 003c 07       		.byte	0x8
+ 701 003d C0000000 		.byte	0x5
+ 702 0041 02       		.4byte	.LASF6
+ 703 0042 04       		.uleb128 0x2
+ 704 0043 05       		.byte	0x8
+ 705 0044 B3010000 		.byte	0x7
+ 706 0048 03       		.4byte	.LASF7
+ 707 0049 AA010000 		.uleb128 0x4
+ 708 004d 02       		.byte	0x4
+ 709 004e 54       		.byte	0x5
+ 710 004f 53000000 		.ascii	"int\000"
+ 711 0053 02       		.uleb128 0x2
+ 712 0054 04       		.byte	0x4
+ 713 0055 07       		.byte	0x7
+ 714 0056 AE000000 		.4byte	.LASF8
+ 715 005a 02       		.uleb128 0x5
+ 716 005b 08       		.byte	0x4
+ 717 005c 05       		.byte	0x7
+ 718 005d 3B010000 		.uleb128 0x2
+ 719 0061 02       		.byte	0x1
+ 720 0062 08       		.byte	0x8
+ 721 0063 07       		.4byte	.LASF9
+ 722 0064 0F010000 		.uleb128 0x6
+ 723 0068 04       		.4byte	.LASF10
+ 724 0069 04       		.byte	0x1
+ 725 006a 05       		.byte	0x6c
+ 726 006b 696E7400 		.byte	0x1
+ 727 006f 02       		.4byte	0x98
+ 728 0070 04       		.uleb128 0x7
+ 729 0071 07       		.4byte	.LASF14
+ 730 0072 F6000000 		.byte	0x1
+ 731 0076 05       		.byte	0x6e
+ 732 0077 04       		.4byte	0x48
+ 733 0078 07       		.byte	0x0
+ 734 0079 02       		.uleb128 0x6
+ 735 007a 01       		.4byte	.LASF11
+ 736 007b 08       		.byte	0x1
+ 737 007c 49010000 		.byte	0xa2
+ 738 0080 06       		.byte	0x1
+ 739 0081 DE010000 		.4byte	0xac
+ 740 0085 01       		.uleb128 0x8
+ 741 0086 6C       		.uleb128 0x9
+ 742 0087 01       		.4byte	0x8c
+ 743 0088 98000000 		.byte	0x0
+ 744 008c 07       		.byte	0x0
+ 745 008d DB000000 		.uleb128 0xa
+ 746 0091 01       		.4byte	.LASF35
+ 747 0092 6E       		.byte	0x1
+ 748 0093 48000000 		.2byte	0x102
+ 749 0097 00       		.byte	0x1
+ 750 0098 06       		.uleb128 0xb
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 19
+
+
+ 751 0099 26010000 		.byte	0x1
+ 752 009d 01       		.4byte	.LASF12
+ 753 009e A2       		.byte	0x1
+ 754 009f 01       		.byte	0xf9
+ 755 00a0 AC000000 		.byte	0x1
+ 756 00a4 08       		.uleb128 0xb
+ 757 00a5 09       		.byte	0x1
+ 758 00a6 8C000000 		.4byte	.LASF13
+ 759 00aa 00       		.byte	0x1
+ 760 00ab 00       		.byte	0x4b
+ 761 00ac 0A       		.byte	0x1
+ 762 00ad 03010000 		.uleb128 0xc
+ 763 00b1 01       		.4byte	0xbe
+ 764 00b2 0201     		.4byte	.LFB3
+ 765 00b4 01       		.4byte	.LFE3
+ 766 00b5 0B       		.4byte	.LLST0
+ 767 00b6 01       		.uleb128 0xd
+ 768 00b7 D3000000 		.byte	0x1
+ 769 00bb 01       		.4byte	.LASF17
+ 770 00bc F9       		.byte	0x1
+ 771 00bd 01       		.byte	0xd3
+ 772 00be 0B       		.4byte	.LASF19
+ 773 00bf 01       		.4byte	.LFB6
+ 774 00c0 5E010000 		.4byte	.LFE6
+ 775 00c4 01       		.4byte	.LLST1
+ 776 00c5 4B       		.4byte	0x14f
+ 777 00c6 01       		.uleb128 0xe
+ 778 00c7 0C       		.ascii	"i\000"
+ 779 00c8 BE000000 		.byte	0x1
+ 780 00cc 00000000 		.byte	0xd5
+ 781 00d0 64000000 		.4byte	0x48
+ 782 00d4 00000000 		.uleb128 0x7
+ 783 00d8 0D       		.4byte	.LASF15
+ 784 00d9 01       		.byte	0x1
+ 785 00da EE000000 		.byte	0xd6
+ 786 00de 01       		.4byte	0x14f
+ 787 00df D3       		.uleb128 0x7
+ 788 00e0 89010000 		.4byte	.LASF16
+ 789 00e4 64000000 		.byte	0x1
+ 790 00e8 50020000 		.byte	0xd6
+ 791 00ec 1F000000 		.4byte	0x14f
+ 792 00f0 4F010000 		.uleb128 0xf
+ 793 00f4 0E       		.4byte	0x98
+ 794 00f5 6900     		.4byte	.Ldebug_ranges0+0x0
+ 795 00f7 01       		.byte	0x1
+ 796 00f8 D5       		.byte	0xd8
+ 797 00f9 48000000 		.4byte	0x134
+ 798 00fd 07       		.uleb128 0x10
+ 799 00fe A0010000 		.4byte	0x80
+ 800 0102 01       		.4byte	.Ldebug_ranges0+0x30
+ 801 0103 D6       		.byte	0x1
+ 802 0104 4F010000 		.byte	0xa4
+ 803 0108 07       		.uleb128 0x9
+ 804 0109 E4000000 		.4byte	0x8c
+ 805 010d 01       		.byte	0x0
+ 806 010e D6       		.byte	0x0
+ 807 010f 4F010000 		.uleb128 0x11
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 20
+
+
+ 808 0113 0F       		.4byte	0xac
+ 809 0114 98000000 		.4byte	.Ldebug_ranges0+0x48
+ 810 0118 00000000 		.byte	0x1
+ 811 011c 01       		.byte	0xf1
+ 812 011d D8       		.uleb128 0x12
+ 813 011e 34010000 		.4byte	0xb5
+ 814 0122 10       		.4byte	.LBB35
+ 815 0123 80000000 		.4byte	.Ldebug_ranges0+0x60
+ 816 0127 30000000 		.byte	0x1
+ 817 012b 01       		.byte	0xf2
+ 818 012c A4       		.byte	0x0
+ 819 012d 09       		.uleb128 0x13
+ 820 012e 8C000000 		.byte	0x4
+ 821 0132 00       		.4byte	0x155
+ 822 0133 00       		.uleb128 0x14
+ 823 0134 11       		.4byte	0x48
+ 824 0135 AC000000 		.uleb128 0x15
+ 825 0139 48000000 		.4byte	0xb5
+ 826 013d 01       		.4byte	.LFB7
+ 827 013e F1       		.4byte	.LFE7
+ 828 013f 12       		.byte	0x1
+ 829 0140 B5000000 		.byte	0x5d
+ 830 0144 FC010000 		.uleb128 0x16
+ 831 0148 60000000 		.byte	0x1
+ 832 014c 01       		.4byte	.LASF18
+ 833 014d F2       		.byte	0x1
+ 834 014e 00       		.byte	0x2d
+ 835 014f 13       		.4byte	.LASF20
+ 836 0150 04       		.4byte	.LFB2
+ 837 0151 55010000 		.4byte	.LFE2
+ 838 0155 14       		.byte	0x1
+ 839 0156 48000000 		.byte	0x5d
+ 840 015a 15       		.4byte	0x18f
+ 841 015b B5000000 		.uleb128 0x11
+ 842 015f 50020000 		.4byte	0xbe
+ 843 0163 7C020000 		.4byte	.Ldebug_ranges0+0x78
+ 844 0167 01       		.byte	0x1
+ 845 0168 5D       		.byte	0x3f
+ 846 0169 16       		.byte	0x0
+ 847 016a 01       		.uleb128 0x17
+ 848 016b 10000000 		.4byte	.LASF21
+ 849 016f 01       		.byte	0x1
+ 850 0170 2D       		.byte	0x1d
+ 851 0171 4E010000 		.4byte	0x6f
+ 852 0175 7C020000 		.byte	0x1
+ 853 0179 70030000 		.byte	0x5
+ 854 017d 01       		.byte	0x3
+ 855 017e 5D       		.4byte	adcSamplesNorth
+ 856 017f 8F010000 		.uleb128 0x17
+ 857 0183 11       		.4byte	.LASF22
+ 858 0184 BE000000 		.byte	0x1
+ 859 0188 78000000 		.byte	0x1e
+ 860 018c 01       		.4byte	0x6f
+ 861 018d 3F       		.byte	0x1
+ 862 018e 00       		.byte	0x5
+ 863 018f 17       		.byte	0x3
+ 864 0190 79010000 		.4byte	adcSamplesSouth
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 21
+
+
+ 865 0194 01       		.uleb128 0x17
+ 866 0195 1D       		.4byte	.LASF23
+ 867 0196 6F000000 		.byte	0x1
+ 868 019a 01       		.byte	0x1f
+ 869 019b 05       		.4byte	0x6f
+ 870 019c 03       		.byte	0x1
+ 871 019d 00000000 		.byte	0x5
+ 872 01a1 17       		.byte	0x3
+ 873 01a2 00000000 		.4byte	adcSamplesEast
+ 874 01a6 01       		.uleb128 0x17
+ 875 01a7 1E       		.4byte	.LASF24
+ 876 01a8 6F000000 		.byte	0x1
+ 877 01ac 01       		.byte	0x20
+ 878 01ad 05       		.4byte	0x6f
+ 879 01ae 03       		.byte	0x1
+ 880 01af 00000000 		.byte	0x5
+ 881 01b3 17       		.byte	0x3
+ 882 01b4 CF010000 		.4byte	adcSamplesWest
+ 883 01b8 01       		.uleb128 0x17
+ 884 01b9 1F       		.4byte	.LASF25
+ 885 01ba 6F000000 		.byte	0x1
+ 886 01be 01       		.byte	0x22
+ 887 01bf 05       		.4byte	0x6f
+ 888 01c0 03       		.byte	0x1
+ 889 01c1 00000000 		.byte	0x5
+ 890 01c5 17       		.byte	0x3
+ 891 01c6 28000000 		.4byte	currentNorth
+ 892 01ca 01       		.uleb128 0x17
+ 893 01cb 20       		.4byte	.LASF26
+ 894 01cc 6F000000 		.byte	0x1
+ 895 01d0 01       		.byte	0x23
+ 896 01d1 05       		.4byte	0x6f
+ 897 01d2 03       		.byte	0x1
+ 898 01d3 00000000 		.byte	0x5
+ 899 01d7 17       		.byte	0x3
+ 900 01d8 2E010000 		.4byte	currentSouth
+ 901 01dc 01       		.uleb128 0x17
+ 902 01dd 22       		.4byte	.LASF27
+ 903 01de 6F000000 		.byte	0x1
+ 904 01e2 01       		.byte	0x24
+ 905 01e3 05       		.4byte	0x6f
+ 906 01e4 03       		.byte	0x1
+ 907 01e5 00000000 		.byte	0x5
+ 908 01e9 17       		.byte	0x3
+ 909 01ea E8010000 		.4byte	currentEast
+ 910 01ee 01       		.uleb128 0x17
+ 911 01ef 23       		.4byte	.LASF28
+ 912 01f0 6F000000 		.byte	0x1
+ 913 01f4 01       		.byte	0x25
+ 914 01f5 05       		.4byte	0x6f
+ 915 01f6 03       		.byte	0x1
+ 916 01f7 00000000 		.byte	0x5
+ 917 01fb 17       		.byte	0x3
+ 918 01fc F5010000 		.4byte	currentWest
+ 919 0200 01       		.uleb128 0x17
+ 920 0201 24       		.4byte	.LASF29
+ 921 0202 6F000000 		.byte	0x1
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 22
+
+
+ 922 0206 01       		.byte	0x27
+ 923 0207 05       		.4byte	0x2c
+ 924 0208 03       		.byte	0x1
+ 925 0209 00000000 		.byte	0x5
+ 926 020d 17       		.byte	0x3
+ 927 020e 37000000 		.4byte	millisCntr
+ 928 0212 01       		.uleb128 0x17
+ 929 0213 25       		.4byte	.LASF30
+ 930 0214 6F000000 		.byte	0x1
+ 931 0218 01       		.byte	0x28
+ 932 0219 05       		.4byte	0x243
+ 933 021a 03       		.byte	0x1
+ 934 021b 00000000 		.byte	0x5
+ 935 021f 17       		.byte	0x3
+ 936 0220 95010000 		.4byte	millis
+ 937 0224 01       		.uleb128 0x14
+ 938 0225 27       		.4byte	0x41
+ 939 0226 2C000000 		.byte	0x0
+ 940 022a 01       		.section	.debug_abbrev
+ 941 022b 05       		.uleb128 0x1
+ 942 022c 03       		.uleb128 0x11
+ 943 022d 00000000 		.byte	0x1
+ 944 0231 17       		.uleb128 0x25
+ 945 0232 BC010000 		.uleb128 0xe
+ 946 0236 01       		.uleb128 0x13
+ 947 0237 28       		.uleb128 0xb
+ 948 0238 43020000 		.uleb128 0x3
+ 949 023c 01       		.uleb128 0xe
+ 950 023d 05       		.uleb128 0x1b
+ 951 023e 03       		.uleb128 0xe
+ 952 023f 00000000 		.uleb128 0x11
+ 953 0243 14       		.uleb128 0x1
+ 954 0244 41000000 		.uleb128 0x12
+ 955 0248 00       		.uleb128 0x1
+ 956              		.uleb128 0x10
+ 957 0000 01       		.uleb128 0x6
+ 958 0001 11       		.byte	0x0
+ 959 0002 01       		.byte	0x0
+ 960 0003 25       		.uleb128 0x2
+ 961 0004 0E       		.uleb128 0x24
+ 962 0005 13       		.byte	0x0
+ 963 0006 0B       		.uleb128 0xb
+ 964 0007 03       		.uleb128 0xb
+ 965 0008 0E       		.uleb128 0x3e
+ 966 0009 1B       		.uleb128 0xb
+ 967 000a 0E       		.uleb128 0x3
+ 968 000b 11       		.uleb128 0xe
+ 969 000c 01       		.byte	0x0
+ 970 000d 12       		.byte	0x0
+ 971 000e 01       		.uleb128 0x3
+ 972 000f 10       		.uleb128 0x16
+ 973 0010 06       		.byte	0x0
+ 974 0011 00       		.uleb128 0x3
+ 975 0012 00       		.uleb128 0xe
+ 976 0013 02       		.uleb128 0x3a
+ 977 0014 24       		.uleb128 0xb
+ 978 0015 00       		.uleb128 0x3b
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 23
+
+
+ 979 0016 0B       		.uleb128 0xb
+ 980 0017 0B       		.uleb128 0x49
+ 981 0018 3E       		.uleb128 0x13
+ 982 0019 0B       		.byte	0x0
+ 983 001a 03       		.byte	0x0
+ 984 001b 0E       		.uleb128 0x4
+ 985 001c 00       		.uleb128 0x24
+ 986 001d 00       		.byte	0x0
+ 987 001e 03       		.uleb128 0xb
+ 988 001f 16       		.uleb128 0xb
+ 989 0020 00       		.uleb128 0x3e
+ 990 0021 03       		.uleb128 0xb
+ 991 0022 0E       		.uleb128 0x3
+ 992 0023 3A       		.uleb128 0x8
+ 993 0024 0B       		.byte	0x0
+ 994 0025 3B       		.byte	0x0
+ 995 0026 0B       		.uleb128 0x5
+ 996 0027 49       		.uleb128 0x24
+ 997 0028 13       		.byte	0x0
+ 998 0029 00       		.uleb128 0xb
+ 999 002a 00       		.uleb128 0xb
+ 1000 002b 04       		.uleb128 0x3e
+ 1001 002c 24       		.uleb128 0xb
+ 1002 002d 00       		.byte	0x0
+ 1003 002e 0B       		.byte	0x0
+ 1004 002f 0B       		.uleb128 0x6
+ 1005 0030 3E       		.uleb128 0x2e
+ 1006 0031 0B       		.byte	0x1
+ 1007 0032 03       		.uleb128 0x3
+ 1008 0033 08       		.uleb128 0xe
+ 1009 0034 00       		.uleb128 0x3a
+ 1010 0035 00       		.uleb128 0xb
+ 1011 0036 05       		.uleb128 0x3b
+ 1012 0037 24       		.uleb128 0xb
+ 1013 0038 00       		.uleb128 0x20
+ 1014 0039 0B       		.uleb128 0xb
+ 1015 003a 0B       		.uleb128 0x1
+ 1016 003b 3E       		.uleb128 0x13
+ 1017 003c 0B       		.byte	0x0
+ 1018 003d 00       		.byte	0x0
+ 1019 003e 00       		.uleb128 0x7
+ 1020 003f 06       		.uleb128 0x34
+ 1021 0040 2E       		.byte	0x0
+ 1022 0041 01       		.uleb128 0x3
+ 1023 0042 03       		.uleb128 0xe
+ 1024 0043 0E       		.uleb128 0x3a
+ 1025 0044 3A       		.uleb128 0xb
+ 1026 0045 0B       		.uleb128 0x3b
+ 1027 0046 3B       		.uleb128 0xb
+ 1028 0047 0B       		.uleb128 0x49
+ 1029 0048 20       		.uleb128 0x13
+ 1030 0049 0B       		.byte	0x0
+ 1031 004a 01       		.byte	0x0
+ 1032 004b 13       		.uleb128 0x8
+ 1033 004c 00       		.uleb128 0xb
+ 1034 004d 00       		.byte	0x1
+ 1035 004e 07       		.byte	0x0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 24
+
+
+ 1036 004f 34       		.byte	0x0
+ 1037 0050 00       		.uleb128 0x9
+ 1038 0051 03       		.uleb128 0x34
+ 1039 0052 0E       		.byte	0x0
+ 1040 0053 3A       		.uleb128 0x31
+ 1041 0054 0B       		.uleb128 0x13
+ 1042 0055 3B       		.byte	0x0
+ 1043 0056 0B       		.byte	0x0
+ 1044 0057 49       		.uleb128 0xa
+ 1045 0058 13       		.uleb128 0x2e
+ 1046 0059 00       		.byte	0x0
+ 1047 005a 00       		.uleb128 0x3
+ 1048 005b 08       		.uleb128 0xe
+ 1049 005c 0B       		.uleb128 0x3a
+ 1050 005d 01       		.uleb128 0xb
+ 1051 005e 00       		.uleb128 0x3b
+ 1052 005f 00       		.uleb128 0x5
+ 1053 0060 09       		.uleb128 0x20
+ 1054 0061 34       		.uleb128 0xb
+ 1055 0062 00       		.byte	0x0
+ 1056 0063 31       		.byte	0x0
+ 1057 0064 13       		.uleb128 0xb
+ 1058 0065 00       		.uleb128 0x2e
+ 1059 0066 00       		.byte	0x0
+ 1060 0067 0A       		.uleb128 0x3f
+ 1061 0068 2E       		.uleb128 0xc
+ 1062 0069 00       		.uleb128 0x3
+ 1063 006a 03       		.uleb128 0xe
+ 1064 006b 0E       		.uleb128 0x3a
+ 1065 006c 3A       		.uleb128 0xb
+ 1066 006d 0B       		.uleb128 0x3b
+ 1067 006e 3B       		.uleb128 0xb
+ 1068 006f 05       		.uleb128 0x20
+ 1069 0070 20       		.uleb128 0xb
+ 1070 0071 0B       		.byte	0x0
+ 1071 0072 00       		.byte	0x0
+ 1072 0073 00       		.uleb128 0xc
+ 1073 0074 0B       		.uleb128 0x2e
+ 1074 0075 2E       		.byte	0x0
+ 1075 0076 00       		.uleb128 0x31
+ 1076 0077 3F       		.uleb128 0x13
+ 1077 0078 0C       		.uleb128 0x11
+ 1078 0079 03       		.uleb128 0x1
+ 1079 007a 0E       		.uleb128 0x12
+ 1080 007b 3A       		.uleb128 0x1
+ 1081 007c 0B       		.uleb128 0x40
+ 1082 007d 3B       		.uleb128 0x6
+ 1083 007e 0B       		.byte	0x0
+ 1084 007f 20       		.byte	0x0
+ 1085 0080 0B       		.uleb128 0xd
+ 1086 0081 00       		.uleb128 0x2e
+ 1087 0082 00       		.byte	0x1
+ 1088 0083 0C       		.uleb128 0x3f
+ 1089 0084 2E       		.uleb128 0xc
+ 1090 0085 00       		.uleb128 0x3
+ 1091 0086 31       		.uleb128 0xe
+ 1092 0087 13       		.uleb128 0x3a
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 25
+
+
+ 1093 0088 11       		.uleb128 0xb
+ 1094 0089 01       		.uleb128 0x3b
+ 1095 008a 12       		.uleb128 0xb
+ 1096 008b 01       		.uleb128 0x2007
+ 1097 008c 40       		.uleb128 0xe
+ 1098 008d 06       		.uleb128 0x11
+ 1099 008e 00       		.uleb128 0x1
+ 1100 008f 00       		.uleb128 0x12
+ 1101 0090 0D       		.uleb128 0x1
+ 1102 0091 2E       		.uleb128 0x40
+ 1103 0092 01       		.uleb128 0x6
+ 1104 0093 3F       		.uleb128 0x1
+ 1105 0094 0C       		.uleb128 0x13
+ 1106 0095 03       		.byte	0x0
+ 1107 0096 0E       		.byte	0x0
+ 1108 0097 3A       		.uleb128 0xe
+ 1109 0098 0B       		.uleb128 0x34
+ 1110 0099 3B       		.byte	0x0
+ 1111 009a 0B       		.uleb128 0x3
+ 1112 009b 8740     		.uleb128 0x8
+ 1113 009d 0E       		.uleb128 0x3a
+ 1114 009e 11       		.uleb128 0xb
+ 1115 009f 01       		.uleb128 0x3b
+ 1116 00a0 12       		.uleb128 0xb
+ 1117 00a1 01       		.uleb128 0x49
+ 1118 00a2 40       		.uleb128 0x13
+ 1119 00a3 06       		.byte	0x0
+ 1120 00a4 01       		.byte	0x0
+ 1121 00a5 13       		.uleb128 0xf
+ 1122 00a6 00       		.uleb128 0x1d
+ 1123 00a7 00       		.byte	0x1
+ 1124 00a8 0E       		.uleb128 0x31
+ 1125 00a9 34       		.uleb128 0x13
+ 1126 00aa 00       		.uleb128 0x55
+ 1127 00ab 03       		.uleb128 0x6
+ 1128 00ac 08       		.uleb128 0x58
+ 1129 00ad 3A       		.uleb128 0xb
+ 1130 00ae 0B       		.uleb128 0x59
+ 1131 00af 3B       		.uleb128 0xb
+ 1132 00b0 0B       		.uleb128 0x1
+ 1133 00b1 49       		.uleb128 0x13
+ 1134 00b2 13       		.byte	0x0
+ 1135 00b3 00       		.byte	0x0
+ 1136 00b4 00       		.uleb128 0x10
+ 1137 00b5 0F       		.uleb128 0x1d
+ 1138 00b6 1D       		.byte	0x1
+ 1139 00b7 01       		.uleb128 0x31
+ 1140 00b8 31       		.uleb128 0x13
+ 1141 00b9 13       		.uleb128 0x55
+ 1142 00ba 55       		.uleb128 0x6
+ 1143 00bb 06       		.uleb128 0x58
+ 1144 00bc 58       		.uleb128 0xb
+ 1145 00bd 0B       		.uleb128 0x59
+ 1146 00be 59       		.uleb128 0xb
+ 1147 00bf 0B       		.byte	0x0
+ 1148 00c0 01       		.byte	0x0
+ 1149 00c1 13       		.uleb128 0x11
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 26
+
+
+ 1150 00c2 00       		.uleb128 0x1d
+ 1151 00c3 00       		.byte	0x0
+ 1152 00c4 10       		.uleb128 0x31
+ 1153 00c5 1D       		.uleb128 0x13
+ 1154 00c6 01       		.uleb128 0x55
+ 1155 00c7 31       		.uleb128 0x6
+ 1156 00c8 13       		.uleb128 0x58
+ 1157 00c9 55       		.uleb128 0xb
+ 1158 00ca 06       		.uleb128 0x59
+ 1159 00cb 58       		.uleb128 0xb
+ 1160 00cc 0B       		.byte	0x0
+ 1161 00cd 59       		.byte	0x0
+ 1162 00ce 0B       		.uleb128 0x12
+ 1163 00cf 00       		.uleb128 0x1d
+ 1164 00d0 00       		.byte	0x0
+ 1165 00d1 11       		.uleb128 0x31
+ 1166 00d2 1D       		.uleb128 0x13
+ 1167 00d3 00       		.uleb128 0x52
+ 1168 00d4 31       		.uleb128 0x1
+ 1169 00d5 13       		.uleb128 0x55
+ 1170 00d6 55       		.uleb128 0x6
+ 1171 00d7 06       		.uleb128 0x58
+ 1172 00d8 58       		.uleb128 0xb
+ 1173 00d9 0B       		.uleb128 0x59
+ 1174 00da 59       		.uleb128 0xb
+ 1175 00db 0B       		.byte	0x0
+ 1176 00dc 00       		.byte	0x0
+ 1177 00dd 00       		.uleb128 0x13
+ 1178 00de 12       		.uleb128 0xf
+ 1179 00df 1D       		.byte	0x0
+ 1180 00e0 00       		.uleb128 0xb
+ 1181 00e1 31       		.uleb128 0xb
+ 1182 00e2 13       		.uleb128 0x49
+ 1183 00e3 52       		.uleb128 0x13
+ 1184 00e4 01       		.byte	0x0
+ 1185 00e5 55       		.byte	0x0
+ 1186 00e6 06       		.uleb128 0x14
+ 1187 00e7 58       		.uleb128 0x35
+ 1188 00e8 0B       		.byte	0x0
+ 1189 00e9 59       		.uleb128 0x49
+ 1190 00ea 0B       		.uleb128 0x13
+ 1191 00eb 00       		.byte	0x0
+ 1192 00ec 00       		.byte	0x0
+ 1193 00ed 13       		.uleb128 0x15
+ 1194 00ee 0F       		.uleb128 0x2e
+ 1195 00ef 00       		.byte	0x0
+ 1196 00f0 0B       		.uleb128 0x31
+ 1197 00f1 0B       		.uleb128 0x13
+ 1198 00f2 49       		.uleb128 0x11
+ 1199 00f3 13       		.uleb128 0x1
+ 1200 00f4 00       		.uleb128 0x12
+ 1201 00f5 00       		.uleb128 0x1
+ 1202 00f6 14       		.uleb128 0x40
+ 1203 00f7 35       		.uleb128 0xa
+ 1204 00f8 00       		.byte	0x0
+ 1205 00f9 49       		.byte	0x0
+ 1206 00fa 13       		.uleb128 0x16
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 27
+
+
+ 1207 00fb 00       		.uleb128 0x2e
+ 1208 00fc 00       		.byte	0x1
+ 1209 00fd 15       		.uleb128 0x3f
+ 1210 00fe 2E       		.uleb128 0xc
+ 1211 00ff 00       		.uleb128 0x3
+ 1212 0100 31       		.uleb128 0xe
+ 1213 0101 13       		.uleb128 0x3a
+ 1214 0102 11       		.uleb128 0xb
+ 1215 0103 01       		.uleb128 0x3b
+ 1216 0104 12       		.uleb128 0xb
+ 1217 0105 01       		.uleb128 0x2007
+ 1218 0106 40       		.uleb128 0xe
+ 1219 0107 0A       		.uleb128 0x11
+ 1220 0108 00       		.uleb128 0x1
+ 1221 0109 00       		.uleb128 0x12
+ 1222 010a 16       		.uleb128 0x1
+ 1223 010b 2E       		.uleb128 0x40
+ 1224 010c 01       		.uleb128 0xa
+ 1225 010d 3F       		.uleb128 0x1
+ 1226 010e 0C       		.uleb128 0x13
+ 1227 010f 03       		.byte	0x0
+ 1228 0110 0E       		.byte	0x0
+ 1229 0111 3A       		.uleb128 0x17
+ 1230 0112 0B       		.uleb128 0x34
+ 1231 0113 3B       		.byte	0x0
+ 1232 0114 0B       		.uleb128 0x3
+ 1233 0115 8740     		.uleb128 0xe
+ 1234 0117 0E       		.uleb128 0x3a
+ 1235 0118 11       		.uleb128 0xb
+ 1236 0119 01       		.uleb128 0x3b
+ 1237 011a 12       		.uleb128 0xb
+ 1238 011b 01       		.uleb128 0x49
+ 1239 011c 40       		.uleb128 0x13
+ 1240 011d 0A       		.uleb128 0x3f
+ 1241 011e 01       		.uleb128 0xc
+ 1242 011f 13       		.uleb128 0x2
+ 1243 0120 00       		.uleb128 0xa
+ 1244 0121 00       		.byte	0x0
+ 1245 0122 17       		.byte	0x0
+ 1246 0123 34       		.byte	0x0
+ 1247 0124 00       		.section	.debug_pubnames,"",%progbits
+ 1248 0125 03       		.4byte	0xf4
+ 1249 0126 0E       		.2byte	0x2
+ 1250 0127 3A       		.4byte	.Ldebug_info0
+ 1251 0128 0B       		.4byte	0x249
+ 1252 0129 3B       		.4byte	0xc7
+ 1253 012a 0B       		.ascii	"oneMillisHandler\000"
+ 1254 012b 49       		.4byte	0xd8
+ 1255 012c 13       		.ascii	"sysInit\000"
+ 1256 012d 3F       		.4byte	0x15a
+ 1257 012e 0C       		.ascii	"initADC\000"
+ 1258 012f 02       		.4byte	0x169
+ 1259 0130 0A       		.ascii	"sysTimeISR\000"
+ 1260 0131 00       		.4byte	0x18f
+ 1261 0132 00       		.ascii	"adcSamplesNorth\000"
+ 1262 0133 00       		.4byte	0x1a1
+ 1263              		.ascii	"adcSamplesSouth\000"
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 28
+
+
+ 1264 0000 F4000000 		.4byte	0x1b3
+ 1265 0004 0200     		.ascii	"adcSamplesEast\000"
+ 1266 0006 00000000 		.4byte	0x1c5
+ 1267 000a 49020000 		.ascii	"adcSamplesWest\000"
+ 1268 000e C7000000 		.4byte	0x1d7
+ 1269 0012 6F6E654D 		.ascii	"currentNorth\000"
+ 1269      696C6C69 
+ 1269      7348616E 
+ 1269      646C6572 
+ 1269      00
+ 1270 0023 D8000000 		.4byte	0x1e9
+ 1271 0027 73797349 		.ascii	"currentSouth\000"
+ 1271      6E697400 
+ 1272 002f 5A010000 		.4byte	0x1fb
+ 1273 0033 696E6974 		.ascii	"currentEast\000"
+ 1273      41444300 
+ 1274 003b 69010000 		.4byte	0x20d
+ 1275 003f 73797354 		.ascii	"currentWest\000"
+ 1275      696D6549 
+ 1275      535200
+ 1276 004a 8F010000 		.4byte	0x21f
+ 1277 004e 61646353 		.ascii	"millisCntr\000"
+ 1277      616D706C 
+ 1277      65734E6F 
+ 1277      72746800 
+ 1278 005e A1010000 		.4byte	0x231
+ 1279 0062 61646353 		.ascii	"millis\000"
+ 1279      616D706C 
+ 1279      6573536F 
+ 1279      75746800 
+ 1280 0072 B3010000 		.4byte	0x0
+ 1281 0076 61646353 		.section	.debug_aranges,"",%progbits
+ 1281      616D706C 
+ 1281      65734561 
+ 1281      737400
+ 1282 0085 C5010000 		.4byte	0x1c
+ 1283 0089 61646353 		.2byte	0x2
+ 1283      616D706C 
+ 1283      65735765 
+ 1283      737400
+ 1284 0098 D7010000 		.4byte	.Ldebug_info0
+ 1285 009c 63757272 		.byte	0x4
+ 1285      656E744E 
+ 1285      6F727468 
+ 1285      00
+ 1286 00a9 E9010000 		.byte	0x0
+ 1287 00ad 63757272 		.2byte	0x0
+ 1287      656E7453 
+ 1287      6F757468 
+ 1287      00
+ 1288 00ba FB010000 		.2byte	0x0
+ 1289 00be 63757272 		.4byte	.Ltext0
+ 1289      656E7445 
+ 1289      61737400 
+ 1290 00ca 0D020000 		.4byte	.Letext0-.Ltext0
+ 1291 00ce 63757272 		.4byte	0x0
+ 1291      656E7457 
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 29
+
+
+ 1291      65737400 
+ 1292 00da 1F020000 		.4byte	0x0
+ 1293 00de 6D696C6C 		.section	.debug_ranges,"",%progbits
+ 1293      6973436E 
+ 1293      747200
+ 1294 00e9 31020000 	.Ldebug_ranges0:
+ 1295 00ed 6D696C6C 		.4byte	.LBB16-.Ltext0
+ 1295      697300
+ 1296 00f4 00000000 		.4byte	.LBE16-.Ltext0
+ 1297              		.4byte	.LBB31-.Ltext0
+ 1298 0000 1C000000 		.4byte	.LBE31-.Ltext0
+ 1299 0004 0200     		.4byte	.LBB30-.Ltext0
+ 1300 0006 00000000 		.4byte	.LBE30-.Ltext0
+ 1301 000a 04       		.4byte	.LBB29-.Ltext0
+ 1302 000b 00       		.4byte	.LBE29-.Ltext0
+ 1303 000c 0000     		.4byte	.LBB28-.Ltext0
+ 1304 000e 0000     		.4byte	.LBE28-.Ltext0
+ 1305 0010 00000000 		.4byte	0x0
+ 1306 0014 70030000 		.4byte	0x0
+ 1307 0018 00000000 		.4byte	.LBB21-.Ltext0
+ 1308 001c 00000000 		.4byte	.LBE21-.Ltext0
+ 1309              		.4byte	.LBB20-.Ltext0
+ 1310              		.4byte	.LBE20-.Ltext0
+ 1311 0000 64000000 		.4byte	0x0
+ 1312 0004 74000000 		.4byte	0x0
+ 1313 0008 8C010000 		.4byte	.LBB32-.Ltext0
+ 1314 000c 94010000 		.4byte	.LBE32-.Ltext0
+ 1315 0010 84010000 		.4byte	.LBB38-.Ltext0
+ 1316 0014 88010000 		.4byte	.LBE38-.Ltext0
+ 1317 0018 74010000 		.4byte	0x0
+ 1318 001c 7C010000 		.4byte	0x0
+ 1319 0020 78000000 		.4byte	.LBB35-.Ltext0
+ 1320 0024 70010000 		.4byte	.LBE35-.Ltext0
+ 1321 0028 00000000 		.4byte	.LBB39-.Ltext0
+ 1322 002c 00000000 		.4byte	.LBE39-.Ltext0
+ 1323 0030 64000000 		.4byte	0x0
+ 1324 0034 74000000 		.4byte	0x0
+ 1325 0038 78000000 		.4byte	.LBB43-.Ltext0
+ 1326 003c 64010000 		.4byte	.LBE43-.Ltext0
+ 1327 0040 00000000 		.4byte	.LBB46-.Ltext0
+ 1328 0044 00000000 		.4byte	.LBE46-.Ltext0
+ 1329 0048 BC010000 		.4byte	0x0
+ 1330 004c FC010000 		.4byte	0x0
+ 1331 0050 00020000 		.section	.debug_str,"MS",%progbits,1
+ 1332 0054 0C020000 	.LASF22:
+ 1333 0058 00000000 		.ascii	"adcSamplesSouth\000"
+ 1334 005c 00000000 	.LASF18:
+ 1335 0060 FC010000 		.ascii	"sysTimeISR\000"
+ 1336 0064 00020000 	.LASF32:
+ 1337 0068 0C020000 		.ascii	"sys_init.cpp\000"
+ 1338 006c 2C020000 	.LASF24:
+ 1339 0070 00000000 		.ascii	"adcSamplesWest\000"
+ 1340 0074 00000000 	.LASF28:
+ 1341 0078 10030000 		.ascii	"currentWest\000"
+ 1342 007c 2C030000 	.LASF31:
+ 1343 0080 30030000 		.ascii	"GNU C++ 4.3.2\000"
+ 1344 0084 54030000 	.LASF33:
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 30
+
+
+ 1345 0088 00000000 		.ascii	"C:\\Users\\Chris\\Desktop\\antipasto_java\\antipast"
+ 1346 008c 00000000 		.ascii	"o_arduino\\hardware\\cores\\sfboard\000"
+ 1347              	.LASF1:
+ 1348              		.ascii	"unsigned char\000"
+ 1349 0000 61646353 	.LASF5:
+ 1349      616D706C 
+ 1349      6573536F 
+ 1349      75746800 
+ 1350              		.ascii	"long unsigned int\000"
+ 1351 0010 73797354 	.LASF3:
+ 1351      696D6549 
+ 1351      535200
+ 1352              		.ascii	"short unsigned int\000"
+ 1353 001b 7379735F 	.LASF12:
+ 1353      696E6974 
+ 1353      2E637070 
+ 1353      00
+ 1354              		.ascii	"initADC\000"
+ 1355 0028 61646353 	.LASF14:
+ 1355      616D706C 
+ 1355      65735765 
+ 1355      737400
+ 1356              		.ascii	"readback\000"
+ 1357 0037 63757272 	.LASF16:
+ 1357      656E7457 
+ 1357      65737400 
+ 1358              		.ascii	"vect_prio\000"
+ 1359 0043 474E5520 	.LASF17:
+ 1359      432B2B20 
+ 1359      342E332E 
+ 1359      3200
+ 1360              		.ascii	"sysInit\000"
+ 1361 0051 433A5C55 	.LASF8:
+ 1361      73657273 
+ 1361      5C436872 
+ 1361      69735C44 
+ 1361      65736B74 
+ 1362 007f 6F5F6172 		.ascii	"unsigned int\000"
+ 1362      6475696E 
+ 1362      6F5C6861 
+ 1362      72647761 
+ 1362      72655C63 
+ 1363              	.LASF35:
+ 1364 00a0 756E7369 		.ascii	"initSysTime\000"
+ 1364      676E6564 
+ 1364      20636861 
+ 1364      7200
+ 1365              	.LASF7:
+ 1366 00ae 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1366      20756E73 
+ 1366      69676E65 
+ 1366      6420696E 
+ 1366      7400
+ 1367              	.LASF11:
+ 1368 00c0 73686F72 		.ascii	"lowInit\000"
+ 1368      7420756E 
+ 1368      7369676E 
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 31
+
+
+ 1368      65642069 
+ 1368      6E7400
+ 1369              	.LASF25:
+ 1370 00d3 696E6974 		.ascii	"currentNorth\000"
+ 1370      41444300 
+ 1371              	.LASF6:
+ 1372 00db 72656164 		.ascii	"long long int\000"
+ 1372      6261636B 
+ 1372      00
+ 1373              	.LASF9:
+ 1374 00e4 76656374 		.ascii	"char\000"
+ 1374      5F707269 
+ 1374      6F00
+ 1375              	.LASF20:
+ 1376 00ee 73797349 		.ascii	"_Z10sysTimeISRv\000"
+ 1376      6E697400 
+ 1377              	.LASF13:
+ 1378 00f6 756E7369 		.ascii	"oneMillisHandler\000"
+ 1378      676E6564 
+ 1378      20696E74 
+ 1378      00
+ 1379              	.LASF2:
+ 1380 0103 696E6974 		.ascii	"short int\000"
+ 1380      53797354 
+ 1380      696D6500 
+ 1381              	.LASF21:
+ 1382 010f 6C6F6E67 		.ascii	"adcSamplesNorth\000"
+ 1382      206C6F6E 
+ 1382      6720756E 
+ 1382      7369676E 
+ 1382      65642069 
+ 1383              	.LASF19:
+ 1384 0126 6C6F7749 		.ascii	"_Z7sysInitv\000"
+ 1384      6E697400 
+ 1385              	.LASF29:
+ 1386 012e 63757272 		.ascii	"millisCntr\000"
+ 1386      656E744E 
+ 1386      6F727468 
+ 1386      00
+ 1387              	.LASF15:
+ 1388 013b 6C6F6E67 		.ascii	"vect_addr\000"
+ 1388      206C6F6E 
+ 1388      6720696E 
+ 1388      7400
+ 1389              	.LASF34:
+ 1390 0149 63686172 		.ascii	"uint32_t\000"
+ 1390      00
+ 1391              	.LASF4:
+ 1392 014e 5F5A3130 		.ascii	"long int\000"
+ 1392      73797354 
+ 1392      696D6549 
+ 1392      53527600 
+ 1393              	.LASF30:
+ 1394 015e 6F6E654D 		.ascii	"millis\000"
+ 1394      696C6C69 
+ 1394      7348616E 
+ 1394      646C6572 
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 32
+
+
+ 1394      00
+ 1395              	.LASF0:
+ 1396 016f 73686F72 		.ascii	"signed char\000"
+ 1396      7420696E 
+ 1396      7400
+ 1397              	.LASF23:
+ 1398 0179 61646353 		.ascii	"adcSamplesEast\000"
+ 1398      616D706C 
+ 1398      65734E6F 
+ 1398      72746800 
+ 1399              	.LASF10:
+ 1400 0189 5F5A3773 		.ascii	"configPLL\000"
+ 1400      7973496E 
+ 1400      69747600 
+ 1401              	.LASF26:
+ 1402 0195 6D696C6C 		.ascii	"currentSouth\000"
+ 1402      6973436E 
+ 1402      747200
+ 1403              	.LASF27:
+ 1404 01a0 76656374 		.ascii	"currentEast\000"
+ 1404      5F616464 
+ 1404      7200
+ 1405              		.ident	"GCC: (Sourcery G++ Lite 2008q3-39) 4.3.2"
+ 1406 01aa 75696E74 	...
+ 1406      33325F74 
+ 1406      00
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s 			page 33
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 sys_init.cpp
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:23     .text:00000000 _Z16oneMillisHandlerv
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:33     .text:00000000 $a
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:82     .text:00000060 $d
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:90     .text:00000064 _Z7sysInitv
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:105    .text:00000064 $a
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:358    .text:0000024c $d
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:395    .text:0000027c _Z10sysTimeISRv
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:366    .text:00000250 _Z7initADCv
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:375    .text:00000250 $a
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:405    .text:0000027c $a
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:525    .text:0000036c $d
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:549    .bss:00000004 adcSamplesNorth
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:557    .bss:0000000c adcSamplesSouth
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:565    .bss:00000014 adcSamplesEast
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:573    .bss:0000001c adcSamplesWest
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:545    .bss:00000000 currentNorth
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:553    .bss:00000008 currentSouth
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:561    .bss:00000010 currentEast
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:569    .bss:00000018 currentWest
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:581    .bss:00000024 millisCntr
+C:\Users\Chris\AppData\Local\Temp/ccGSaaaa.s:577    .bss:00000020 millis
+                             .bss:00000000 $d
+
+NO UNDEFINED SYMBOLS

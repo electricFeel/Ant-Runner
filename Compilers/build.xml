@@ -1,0 +1,24 @@
+
+
+<project name="Arm" default="compileC">
+	<target name="compileC">
+		<apply dir="arm-none-eabi" executable="gcc" dest="src" parallel="false" verbose="true">
+			<arg line="-c"/>
+			<arg line="-Mcpu=arm7tdmi"/>
+			<arg line="-gdwarf-2"/>
+			<arg line="-MD"/>
+			<arg line="-Wall"/>
+			<arg line="-O2"/>
+			<arg line="-Os"/>
+			<arg line="-Mapcs-frame"/>
+			<!--<arg line="-Mthumb-interwork"/>-->
+			<arg line="-ffunction-sections"/>
+			<arg line="-I/Users/omarayub/Documents/AntWorkSpace/AntRunner/Compilers/src/"/>
+			<srcfile/>
+			<arg line="-o"/>
+			<targetfile/>
+		    <fileset dir="src" includes="*.c"/>
+		    <mapper type="glob" from="*.c" to="*.c.o"/>
+		</apply> 
+	</target>
+</project>

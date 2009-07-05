@@ -1,0 +1,1212 @@
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 1
+
+
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.cpp"
+  12              		.section	.debug_abbrev,"",%progbits
+  13              	.Ldebug_abbrev0:
+  14              		.section	.debug_info,"",%progbits
+  15              	.Ldebug_info0:
+  16              		.section	.debug_line,"",%progbits
+  17              	.Ldebug_line0:
+  18 0000 89000000 		.text
+  18      02001F00 
+  18      00000201 
+  18      FB0E0D00 
+  18      01010101 
+  19              	.Ltext0:
+  20              		.align	2
+  21              		.global	_Z7ledSpinv
+  22              		.type	_Z7ledSpinv, %function
+  23              	_Z7ledSpinv:
+  24              		.fnstart
+  25              	.LFB2:
+  26              		.file 1 "main.cpp"
+   1:main.cpp      **** /******************************************************************************/
+   2:main.cpp      **** /* IAP In-System Application Programming Demo                                 */
+   3:main.cpp      **** /******************************************************************************/
+   4:main.cpp      **** /* This file is part of the uVision/ARM development tools.                    */
+   5:main.cpp      **** /* Copyright (c) 2005-2006 Keil Software. All rights reserved.                */
+   6:main.cpp      **** /* This software may only be used under the terms of a valid, current,        */
+   7:main.cpp      **** /* end user licence from KEIL for a compatible version of KEIL software       */
+   8:main.cpp      **** /* development tools. Nothing else gives you the right to use this software.  */
+   9:main.cpp      **** /******************************************************************************/
+  10:main.cpp      **** #include <stdio.h>                         /* standard I/O .h-file */
+  11:main.cpp      **** #include <LPC23xx.H>                       /* LPC23xx definitions  */
+  12:main.cpp      **** #include <math.h>
+  13:main.cpp      **** #include <stdlib.h>
+  14:main.cpp      **** #include <stdint.h>
+  15:main.cpp      **** 
+  16:main.cpp      **** #include "Serial.h"
+  17:main.cpp      **** #include "sbl_iap.h"
+  18:main.cpp      **** #include "fio.h"
+  19:main.cpp      **** 
+  20:main.cpp      **** #define LED_FIOPIN  FIO2PIN
+  21:main.cpp      **** #define LED_FIOSET  FIO2SET
+  22:main.cpp      **** #define LED_FIOCLR  FIO2CLR
+  23:main.cpp      **** 
+  24:main.cpp      **** #define LED_GREEN_MASK    (1UL<<0)
+  25:main.cpp      **** #define LED_RED_MASK      (1UL<<1)
+  26:main.cpp      **** #define LED_BLUE_MASK     (1UL<<2)
+  27:main.cpp      **** 
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 2
+
+
+  28:main.cpp      **** #define LED_NORTH_MASK (1UL<<3)
+  29:main.cpp      **** #define LED_SOUTH_MASK (1UL<<4)
+  30:main.cpp      **** #define LED_WEST_MASK  (1UL<<5)
+  31:main.cpp      **** #define LED_EAST_MASK  (1UL<<26)
+  32:main.cpp      **** 
+  33:main.cpp      **** #define kMCUId "lpc2368"
+  34:main.cpp      **** #define kApplicationStartAddr  0x00004000
+  35:main.cpp      **** #define kApplicationEndAddr    0x0007BFFF
+  36:main.cpp      **** #define kSPM_PAGE_SIZE         512
+  37:main.cpp      **** #define kUSART_RX_BUFFER_SIZE  kSPM_PAGE_SIZE               
+  38:main.cpp      **** #define kSoftwareIdentifier     "AVRBOOT"
+  39:main.cpp      **** #define kSoftwareVersionHigh   '0'
+  40:main.cpp      **** #define kSoftwareVersionLow    '7'
+  41:main.cpp      **** 
+  42:main.cpp      **** #define kDevType               0x74         //mega645
+  43:main.cpp      **** #define kSignatureByte3        0x1E         //mega2560
+  44:main.cpp      **** #define kSignatureByte2        0x98         //mega2560
+  45:main.cpp      **** #define kSignatureByte1        0x01         //mega2560      
+  46:main.cpp      **** 
+  47:main.cpp      **** extern void sysInit(void);
+  48:main.cpp      **** 
+  49:main.cpp      **** void butterflyService(void);
+  50:main.cpp      **** char BufferLoad(unsigned int size, unsigned char memType);
+  51:main.cpp      **** void BlockRead(unsigned int size, unsigned char memType);
+  52:main.cpp      **** 
+  53:main.cpp      **** unsigned int gAddress=0; // butterfly address 
+  54:main.cpp      **** unsigned int gAddressPgm=kApplicationStartAddr;   //address to program
+  55:main.cpp      **** unsigned char gBuffer[kUSART_RX_BUFFER_SIZE];  //RAM buffer for  
+  56:main.cpp      **** unsigned char gDevice;
+  57:main.cpp      **** unsigned char gDevType;
+  58:main.cpp      **** 
+  59:main.cpp      **** volatile unsigned int purge;
+  60:main.cpp      **** unsigned int num=0;
+  61:main.cpp      **** 
+  62:main.cpp      **** static void time_waste( DWORD dv );
+  63:main.cpp      **** 
+  64:main.cpp      **** //unsigned int datax[80000] __attribute__((section(".text"))); 
+  65:main.cpp      **** 
+  66:main.cpp      **** 
+  67:main.cpp      **** void ledSpin()
+  27              	upports interworking.
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              		.loc 1 69 0
+  68:main.cpp      **** {
+  69:main.cpp      ****     for (purge=0;purge<600000; purge++)
+  32              	r1, .L16
+  33 0000 4C119FE5 		mov	r3, #0
+  34 0004 0030A0E3 		str	r3, [r1, #0]
+  35 0008 003081E5 		mov	r2, #598016
+  36 000c 922AA0E3 		add	r2, r2, #1968
+  37 0010 7B2E82E2 		ldr	r3, [r1, #0]
+  38 0014 003091E5 		add	r2, r2, #15
+  39 0018 0F2082E2 		cmp	r3, r2
+  40 001c 020053E1 		bhi	.L2
+  41 0020 0600008A 		mov	r0, r2
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 3
+
+
+  42 0024 0200A0E1 	.L12:
+  43              		ldr	r3, [r1, #0]
+  44 0028 003091E5 		add	r3, r3, #1
+  45 002c 013083E2 		str	r3, [r1, #0]
+  46 0030 003081E5 		ldr	r2, [r1, #0]
+  47 0034 002091E5 		cmp	r2, r0
+  48 0038 000052E1 		bls	.L12
+  49 003c F9FFFF9A 	.L2:
+  50              		.loc 1 74 0
+  70:main.cpp      ****     {
+  71:main.cpp      ****         ;
+  72:main.cpp      ****     }
+  73:main.cpp      **** 
+  74:main.cpp      ****     num++;
+  51              	add	r3, r3, #1
+  52 0040 043091E5 		.loc 1 75 0
+  53 0044 013083E2 		cmp	r3, #4
+  75:main.cpp      ****     if (num==4)
+  54              	oc 1 74 0
+  55 0048 040053E3 		str	r3, [r1, #4]
+  56              		.loc 1 77 0
+  57 004c 043081E5 		ldreq	r3, .L16
+  76:main.cpp      ****     {
+  77:main.cpp      ****         num=0;
+  58              	eq	r2, #0
+  59 0050 FC309F05 		streq	r2, [r3, #4]
+  60 0054 0020A003 		.loc 1 75 0
+  61 0058 04208305 		beq	.L5
+  62              		.loc 1 80 0
+  63 005c 3300000A 		cmp	r3, #3
+  78:main.cpp      ****     }
+  79:main.cpp      **** 
+  80:main.cpp      ****     switch (num)
+  64              		pc, [pc, r3, asl #2]
+  65 0060 030053E3 		b	.L11
+  66 0064 03F19F97 	.L10:
+  67 0068 110000EA 		.word	.L5
+  68              		.word	.L7
+  69 006c 30010000 		.word	.L8
+  70 0070 F4000000 		.word	.L9
+  71 0074 B8000000 	.L9:
+  72 0078 7C000000 		.loc 1 104 0
+  73              		mvn	r1, #-1073741824
+  81:main.cpp      ****     {
+  82:main.cpp      ****     case 0:
+  83:main.cpp      **** 
+  84:main.cpp      ****         FIO2CLR |= LED_NORTH_MASK;
+  85:main.cpp      ****         FIO2SET |= LED_SOUTH_MASK;
+  86:main.cpp      ****         FIO2SET |= LED_WEST_MASK;
+  87:main.cpp      ****         FIO1SET |= LED_EAST_MASK;
+  88:main.cpp      ****         break;
+  89:main.cpp      **** 
+  90:main.cpp      ****     case 1:
+  91:main.cpp      ****         FIO2SET |= LED_NORTH_MASK;
+  92:main.cpp      ****         FIO2CLR |= LED_SOUTH_MASK;
+  93:main.cpp      ****         FIO2SET |= LED_WEST_MASK;
+  94:main.cpp      ****         FIO1SET |= LED_EAST_MASK;
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 4
+
+
+  95:main.cpp      ****         break;
+  96:main.cpp      **** 
+  97:main.cpp      ****     case 2:
+  98:main.cpp      ****         FIO2SET |= LED_NORTH_MASK;
+  99:main.cpp      ****         FIO2SET |= LED_SOUTH_MASK;
+ 100:main.cpp      ****         FIO2CLR |= LED_WEST_MASK;
+ 101:main.cpp      ****         FIO1SET |= LED_EAST_MASK;
+ 102:main.cpp      ****         break;
+ 103:main.cpp      ****     case 3:
+ 104:main.cpp      ****         FIO2SET |= LED_NORTH_MASK;
+  74              	1, #12288
+  75 007c 0311E0E3 		ldr	r3, [r1, #-4007]
+  76 0080 031A41E2 		orr	r3, r3, #8
+  77 0084 A73F11E5 		str	r3, [r1, #-4007]
+  78 0088 083083E3 		.loc 1 105 0
+  79 008c A73F01E5 		ldr	r2, [r1, #-4007]
+ 105:main.cpp      ****         FIO2SET |= LED_SOUTH_MASK;
+  80              	2, r2, #16
+  81 0090 A72F11E5 		str	r2, [r1, #-4007]
+  82 0094 102082E3 		.loc 1 106 0
+  83 0098 A72F01E5 		ldr	r3, [r1, #-4007]
+ 106:main.cpp      ****         FIO2SET |= LED_WEST_MASK;
+  84              		r3, r3, #32
+  85 009c A73F11E5 		str	r3, [r1, #-4007]
+  86 00a0 203083E3 		.loc 1 107 0
+  87 00a4 A73F01E5 		ldr	r2, [r1, #-4035]
+ 107:main.cpp      ****         FIO1CLR |= LED_EAST_MASK;
+  88              		r2, r2, #67108864
+  89 00a8 C32F11E5 		str	r2, [r1, #-4035]
+  90 00ac 012382E3 	.L11:
+  91 00b0 C32F01E5 		bx	lr
+  92              	.L8:
+  93 00b4 1EFF2FE1 		.loc 1 98 0
+  94              		mvn	r1, #-1073741824
+  95              		sub	r1, r1, #12288
+  96 00b8 0311E0E3 		ldr	r3, [r1, #-4007]
+  97 00bc 031A41E2 		orr	r3, r3, #8
+  98 00c0 A73F11E5 		str	r3, [r1, #-4007]
+  99 00c4 083083E3 		.loc 1 99 0
+ 100 00c8 A73F01E5 		ldr	r2, [r1, #-4007]
+ 101              		orr	r2, r2, #16
+ 102 00cc A72F11E5 		str	r2, [r1, #-4007]
+ 103 00d0 102082E3 		.loc 1 100 0
+ 104 00d4 A72F01E5 		ldr	r3, [r1, #-4003]
+ 105              		orr	r3, r3, #32
+ 106 00d8 A33F11E5 		str	r3, [r1, #-4003]
+ 107 00dc 203083E3 		.loc 1 101 0
+ 108 00e0 A33F01E5 		ldr	r2, [r1, #-4039]
+ 109              		orr	r2, r2, #67108864
+ 110 00e4 C72F11E5 		str	r2, [r1, #-4039]
+ 111 00e8 012382E3 		bx	lr
+ 112 00ec C72F01E5 	.L7:
+ 113 00f0 1EFF2FE1 		.loc 1 91 0
+ 114              		mvn	r1, #-1073741824
+ 115              		sub	r1, r1, #12288
+ 116 00f4 0311E0E3 		ldr	r3, [r1, #-4007]
+ 117 00f8 031A41E2 		orr	r3, r3, #8
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 5
+
+
+ 118 00fc A73F11E5 		str	r3, [r1, #-4007]
+ 119 0100 083083E3 		.loc 1 92 0
+ 120 0104 A73F01E5 		ldr	r2, [r1, #-4003]
+ 121              		orr	r2, r2, #16
+ 122 0108 A32F11E5 		str	r2, [r1, #-4003]
+ 123 010c 102082E3 	.L14:
+ 124 0110 A32F01E5 		.loc 1 93 0
+ 125              		ldr	r3, [r1, #-4007]
+ 126              		orr	r3, r3, #32
+ 127 0114 A73F11E5 		str	r3, [r1, #-4007]
+ 128 0118 203083E3 		.loc 1 94 0
+ 129 011c A73F01E5 		ldr	r2, [r1, #-4039]
+ 130              		orr	r2, r2, #67108864
+ 131 0120 C72F11E5 		str	r2, [r1, #-4039]
+ 132 0124 012382E3 		bx	lr
+ 133 0128 C72F01E5 	.L5:
+ 134 012c 1EFF2FE1 		.loc 1 84 0
+ 135              		mvn	r1, #-1073741824
+ 136              		sub	r1, r1, #12288
+ 137 0130 0311E0E3 		ldr	r3, [r1, #-4003]
+ 138 0134 031A41E2 		orr	r3, r3, #8
+ 139 0138 A33F11E5 		str	r3, [r1, #-4003]
+ 140 013c 083083E3 		.loc 1 85 0
+ 141 0140 A33F01E5 		ldr	r2, [r1, #-4007]
+ 142              		orr	r2, r2, #16
+ 143 0144 A72F11E5 		str	r2, [r1, #-4007]
+ 144 0148 102082E3 		b	.L14
+ 145 014c A72F01E5 	.L17:
+ 146 0150 EFFFFFEA 		.align	2
+ 147              	.L16:
+ 148              		.word	.LANCHOR0
+ 149              	.LFE2:
+ 150 0154 00000000 		.cantunwind
+ 151              		.fnend
+ 152              		.size	_Z7ledSpinv, .-_Z7ledSpinv
+ 153              		.align	2
+ 154              		.global	main
+ 155              		.type	main, %function
+ 156              	main:
+ 157              		.fnstart
+ 158              	.LFB3:
+ 159              		.loc 1 112 0
+ 160              		@ Function supports interworking.
+ 108:main.cpp      ****         break;
+ 109:main.cpp      ****     }
+ 110:main.cpp      **** }
+ 111:main.cpp      **** 
+ 112:main.cpp      **** int main (void)  {	 
+ 161              	rgs = 0
+ 162              		.movsp ip
+ 163              		mov	ip, sp
+ 164              	.LCFI0:
+ 165              		stmfd	sp!, {r4, r5, fp, ip, lr, pc}
+ 166 0158 0DC0A0E1 		.pad #4
+ 167              		.save {r4, r5, fp, ip, lr}
+ 168 015c 30D82DE9 	.LCFI1:
+ 169              		.setfp fp, ip, #-4
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 6
+
+
+ 170              		sub	fp, ip, #4
+ 171              	.LCFI2:
+ 172              		.loc 1 114 0
+ 173 0160 04B04CE2 		bl	_Z7sysInitv
+ 174              		.loc 1 116 0
+ 113:main.cpp      **** 
+ 114:main.cpp      **** 	sysInit();
+ 175              	ov	r1, #1
+ 176 0164 FEFFFFEB 		mov	r2, r1
+ 115:main.cpp      ****              
+ 116:main.cpp      ****     GPIOInit( 2, FAST_PORT, DIR_OUT, LED_RED_MASK );
+ 177              	ov	r3, r0
+ 178 0168 0200A0E3 		bl	_Z8GPIOInitmmmm
+ 179 016c 0110A0E3 		.loc 1 117 0
+ 180 0170 0120A0E1 		mov	r1, #1
+ 181 0174 0030A0E1 		mov	r2, r1
+ 182 0178 FEFFFFEB 		mov	r3, r1
+ 117:main.cpp      ****     GPIOInit( 2, FAST_PORT, DIR_OUT, LED_GREEN_MASK );
+ 183              	0, #2
+ 184 017c 0110A0E3 		bl	_Z8GPIOInitmmmm
+ 185 0180 0120A0E1 		.loc 1 118 0
+ 186 0184 0130A0E1 		mov	r1, #1
+ 187 0188 0200A0E3 		mov	r2, r1
+ 188 018c FEFFFFEB 		mov	r0, #2
+ 118:main.cpp      ****     GPIOInit( 2, FAST_PORT, DIR_OUT, LED_BLUE_MASK );
+ 189              	3, #4
+ 190 0190 0110A0E3 		bl	_Z8GPIOInitmmmm
+ 191 0194 0120A0E1 		.loc 1 120 0
+ 192 0198 0200A0E3 		mov	r1, #1
+ 193 019c 0430A0E3 		mov	r2, r1
+ 194 01a0 FEFFFFEB 		mov	r0, #2
+ 119:main.cpp      **** 
+ 120:main.cpp      ****     GPIOInit( 2, FAST_PORT, DIR_OUT, LED_NORTH_MASK );
+ 195              	3, #8
+ 196 01a4 0110A0E3 		bl	_Z8GPIOInitmmmm
+ 197 01a8 0120A0E1 		.loc 1 121 0
+ 198 01ac 0200A0E3 		mov	r1, #1
+ 199 01b0 0830A0E3 		mov	r2, r1
+ 200 01b4 FEFFFFEB 		mov	r0, #2
+ 121:main.cpp      ****     GPIOInit( 2, FAST_PORT, DIR_OUT, LED_SOUTH_MASK );
+ 201              	3, #16
+ 202 01b8 0110A0E3 		bl	_Z8GPIOInitmmmm
+ 203 01bc 0120A0E1 		.loc 1 122 0
+ 204 01c0 0200A0E3 		mov	r1, #1
+ 205 01c4 1030A0E3 		mov	r2, r1
+ 206 01c8 FEFFFFEB 		mov	r0, #2
+ 122:main.cpp      ****     GPIOInit( 2, FAST_PORT, DIR_OUT, LED_WEST_MASK );
+ 207              	3, #32
+ 208 01cc 0110A0E3 		bl	_Z8GPIOInitmmmm
+ 209 01d0 0120A0E1 		.loc 1 123 0
+ 210 01d4 0200A0E3 		mov	r0, #1
+ 211 01d8 2030A0E3 		mov	r1, r0
+ 212 01dc FEFFFFEB 		mov	r2, r0
+ 123:main.cpp      ****     GPIOInit( 1, FAST_PORT, DIR_OUT, LED_EAST_MASK );
+ 213              	3, #67108864
+ 214 01e0 0100A0E3 		bl	_Z8GPIOInitmmmm
+ 215 01e4 0010A0E1 		.loc 1 126 0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 7
+
+
+ 216 01e8 0020A0E1 		mvn	r1, #-1073741824
+ 217 01ec 0133A0E3 		sub	r1, r1, #12288
+ 218 01f0 FEFFFFEB 		ldr	r3, [r1, #-4011]
+ 124:main.cpp      **** 
+ 125:main.cpp      **** 
+ 126:main.cpp      ****     FIO2PIN |= LED_RED_MASK;
+ 219              	3, r3, #2
+ 220 01f4 0311E0E3 		str	r3, [r1, #-4011]
+ 221 01f8 031A41E2 		.loc 1 127 0
+ 222 01fc AB3F11E5 		ldr	r2, [r1, #-4011]
+ 223 0200 023083E3 		orr	r2, r2, #1
+ 224 0204 AB3F01E5 		str	r2, [r1, #-4011]
+ 127:main.cpp      ****     FIO2PIN |= LED_GREEN_MASK;
+ 225              	1 128 0
+ 226 0208 AB2F11E5 		ldr	r3, [r1, #-4011]
+ 227 020c 012082E3 		orr	r3, r3, #4
+ 228 0210 AB2F01E5 		str	r3, [r1, #-4011]
+ 128:main.cpp      ****     FIO2PIN |= LED_BLUE_MASK;
+ 229              	c 1 130 0
+ 230 0214 AB3F11E5 		ldr	r2, [r1, #-4011]
+ 231 0218 043083E3 		orr	r2, r2, #8
+ 232 021c AB3F01E5 		str	r2, [r1, #-4011]
+ 129:main.cpp      ****     
+ 130:main.cpp      ****     FIO2PIN |= LED_NORTH_MASK;
+ 233              	c 1 131 0
+ 234 0220 AB2F11E5 		ldr	r3, [r1, #-4011]
+ 235 0224 082082E3 		orr	r3, r3, #16
+ 236 0228 AB2F01E5 		str	r3, [r1, #-4011]
+ 131:main.cpp      ****     FIO2PIN |= LED_SOUTH_MASK;
+ 237              	c 1 132 0
+ 238 022c AB3F11E5 		ldr	r2, [r1, #-4011]
+ 239 0230 103083E3 		orr	r2, r2, #32
+ 240 0234 AB3F01E5 		str	r2, [r1, #-4011]
+ 132:main.cpp      ****     FIO2PIN |= LED_WEST_MASK;
+ 241              	c 1 133 0
+ 242 0238 AB2F11E5 		ldr	r3, [r1, #-4043]
+ 243 023c 202082E3 		ldr	r0, .L35
+ 244 0240 AB2F01E5 		orr	r3, r3, #67108864
+ 133:main.cpp      ****     FIO1PIN |= LED_EAST_MASK;
+ 245              	4:
+ 246 0244 CB3F11E5 	.LBB5:
+ 247 0248 24019FE5 		.loc 1 69 0
+ 248 024c 013383E3 		mov	ip, #598016
+ 249              		add	ip, ip, #1968
+ 250              	.LBE5:
+ 251              	.LBE4:
+ 252 0250 92CAA0E3 		.loc 1 133 0
+ 253 0254 7BCE8CE2 		str	r3, [r1, #-4043]
+ 254              		ldr	lr, [r0, #4]
+ 255              	.LBB7:
+ 256              	.LBB6:
+ 257 0258 CB3F01E5 		.loc 1 69 0
+ 258 025c 04E090E5 		add	ip, ip, #15
+ 259              		mov	r4, #0
+ 260              	.L33:
+ 261              		str	r4, [r0, #0]
+ 262 0260 0FC08CE2 		ldr	r3, [r0, #0]
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 8
+
+
+ 263 0264 0040A0E3 		cmp	r3, ip
+ 264              		bhi	.L20
+ 265 0268 004080E5 	.L30:
+ 266 026c 003090E5 		ldr	r3, [r0, #0]
+ 267 0270 0C0053E1 		add	r3, r3, #1
+ 268 0274 0500008A 		str	r3, [r0, #0]
+ 269              		ldr	r2, [r0, #0]
+ 270 0278 003090E5 		cmp	r2, ip
+ 271 027c 013083E2 		bls	.L30
+ 272 0280 003080E5 	.L20:
+ 273 0284 002090E5 		.loc 1 74 0
+ 274 0288 0C0052E1 		add	lr, lr, #1
+ 275 028c F9FFFF9A 		.loc 1 75 0
+ 276              		cmp	lr, #4
+ 277              		subeq	lr, lr, #4
+ 278 0290 01E08EE2 		beq	.L23
+ 279              		.loc 1 80 0
+ 280 0294 04005EE3 		cmp	lr, #3
+ 281 0298 04E04E02 		ldrls	pc, [pc, lr, asl #2]
+ 282 029c 2D00000A 		b	.L33
+ 283              	.L27:
+ 284 02a0 03005EE3 		.word	.L23
+ 285 02a4 0EF19F97 		.word	.L24
+ 286 02a8 EEFFFFEA 		.word	.L25
+ 287              		.word	.L26
+ 288 02ac 58030000 	.L26:
+ 289 02b0 24030000 		.loc 1 104 0
+ 290 02b4 F0020000 		ldr	r3, [r1, #-4007]
+ 291 02b8 BC020000 		orr	r3, r3, #8
+ 292              		str	r3, [r1, #-4007]
+ 293              		.loc 1 105 0
+ 294 02bc A73F11E5 		ldr	r2, [r1, #-4007]
+ 295 02c0 083083E3 		orr	r2, r2, #16
+ 296 02c4 A73F01E5 		str	r2, [r1, #-4007]
+ 297              		.loc 1 106 0
+ 298 02c8 A72F11E5 		ldr	r3, [r1, #-4007]
+ 299 02cc 102082E3 		orr	r3, r3, #32
+ 300 02d0 A72F01E5 		str	r3, [r1, #-4007]
+ 301              		.loc 1 107 0
+ 302 02d4 A73F11E5 		ldr	r2, [r1, #-4035]
+ 303 02d8 203083E3 		orr	r2, r2, #67108864
+ 304 02dc A73F01E5 		str	r2, [r1, #-4035]
+ 305              		b	.L33
+ 306 02e0 C32F11E5 	.L25:
+ 307 02e4 012382E3 		.loc 1 98 0
+ 308 02e8 C32F01E5 		ldr	r3, [r1, #-4007]
+ 309 02ec DDFFFFEA 		orr	r3, r3, #8
+ 310              		str	r3, [r1, #-4007]
+ 311              		.loc 1 99 0
+ 312 02f0 A73F11E5 		ldr	r2, [r1, #-4007]
+ 313 02f4 083083E3 		orr	r2, r2, #16
+ 314 02f8 A73F01E5 		str	r2, [r1, #-4007]
+ 315              		.loc 1 100 0
+ 316 02fc A72F11E5 		ldr	r3, [r1, #-4003]
+ 317 0300 102082E3 		orr	r3, r3, #32
+ 318 0304 A72F01E5 		str	r3, [r1, #-4003]
+ 319              		.loc 1 101 0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 9
+
+
+ 320 0308 A33F11E5 		ldr	r2, [r1, #-4039]
+ 321 030c 203083E3 		orr	r2, r2, #67108864
+ 322 0310 A33F01E5 		str	r2, [r1, #-4039]
+ 323              		b	.L33
+ 324 0314 C72F11E5 	.L24:
+ 325 0318 012382E3 		.loc 1 91 0
+ 326 031c C72F01E5 		ldr	r3, [r1, #-4007]
+ 327 0320 D0FFFFEA 		orr	r3, r3, #8
+ 328              		str	r3, [r1, #-4007]
+ 329              		.loc 1 92 0
+ 330 0324 A73F11E5 		ldr	r2, [r1, #-4003]
+ 331 0328 083083E3 		orr	r2, r2, #16
+ 332 032c A73F01E5 		str	r2, [r1, #-4003]
+ 333              	.L34:
+ 334 0330 A32F11E5 		.loc 1 93 0
+ 335 0334 102082E3 		ldr	r3, [r1, #-4007]
+ 336 0338 A32F01E5 		orr	r3, r3, #32
+ 337              		str	r3, [r1, #-4007]
+ 338              		.loc 1 94 0
+ 339 033c A73F11E5 		ldr	r2, [r1, #-4039]
+ 340 0340 203083E3 		orr	r2, r2, #67108864
+ 341 0344 A73F01E5 		str	r2, [r1, #-4039]
+ 342              		b	.L33
+ 343 0348 C72F11E5 	.L23:
+ 344 034c 012382E3 		.loc 1 84 0
+ 345 0350 C72F01E5 		ldr	r3, [r1, #-4003]
+ 346 0354 C3FFFFEA 		orr	r3, r3, #8
+ 347              		str	r3, [r1, #-4003]
+ 348              		.loc 1 85 0
+ 349 0358 A33F11E5 		ldr	r2, [r1, #-4007]
+ 350 035c 083083E3 		orr	r2, r2, #16
+ 351 0360 A33F01E5 		str	r2, [r1, #-4007]
+ 352              		b	.L34
+ 353 0364 A72F11E5 	.L36:
+ 354 0368 102082E3 		.align	2
+ 355 036c A72F01E5 	.L35:
+ 356 0370 F1FFFFEA 		.word	.LANCHOR0
+ 357              	.LBE6:
+ 358              	.LBE7:
+ 359              	.LFE3:
+ 360 0374 00000000 		.fnend
+ 361              		.size	main, .-main
+ 362              		.global	gAddress
+ 363              		.global	gAddressPgm
+ 364              		.global	gBuffer
+ 365              		.global	gDevice
+ 366              		.global	gDevType
+ 367              		.global	purge
+ 368              		.global	num
+ 369              		.data
+ 370              		.align	2
+ 371              		.type	gAddressPgm, %object
+ 372              		.size	gAddressPgm, 4
+ 373              	gAddressPgm:
+ 374              		.word	16384
+ 375              		.bss
+ 376              		.align	2
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 10
+
+
+ 377              		.set	.LANCHOR0,. + 0
+ 378 0000 00400000 		.type	purge, %object
+ 379              		.size	purge, 4
+ 380              	purge:
+ 381              		.space	4
+ 382              		.type	num, %object
+ 383              		.size	num, 4
+ 384              	num:
+ 385 0000 00000000 		.space	4
+ 386              		.type	gAddress, %object
+ 387              		.size	gAddress, 4
+ 388              	gAddress:
+ 389 0004 00000000 		.space	4
+ 390              		.type	gBuffer, %object
+ 391              		.size	gBuffer, 512
+ 392              	gBuffer:
+ 393 0008 00000000 		.space	512
+ 394              		.type	gDevice, %object
+ 395              		.size	gDevice, 1
+ 396              	gDevice:
+ 397 000c 00000000 		.space	1
+ 397      00000000 
+ 397      00000000 
+ 397      00000000 
+ 397      00000000 
+ 398              		.type	gDevType, %object
+ 399              		.size	gDevType, 1
+ 400              	gDevType:
+ 401 020c 00       		.space	1
+ 402              		.section	.debug_frame,"",%progbits
+ 403              	.Lframe0:
+ 404              		.4byte	.LECIE0-.LSCIE0
+ 405 020d 00       	.LSCIE0:
+ 406 020e 0000     		.4byte	0xffffffff
+ 407              		.byte	0x1
+ 408 0000 0C000000 		.ascii	"\000"
+ 409              		.uleb128 0x1
+ 410 0004 FFFFFFFF 		.sleb128 -4
+ 411 0008 01       		.byte	0xe
+ 412 0009 00       		.byte	0xc
+ 413 000a 01       		.uleb128 0xd
+ 414 000b 7C       		.uleb128 0x0
+ 415 000c 0E       		.align	2
+ 416 000d 0C       	.LECIE0:
+ 417 000e 0D       	.LSFDE0:
+ 418 000f 00       		.4byte	.LEFDE0-.LASFDE0
+ 419              	.LASFDE0:
+ 420              		.4byte	.Lframe0
+ 421              		.4byte	.LFB2
+ 422 0010 0C000000 		.4byte	.LFE2-.LFB2
+ 423              		.align	2
+ 424 0014 00000000 	.LEFDE0:
+ 425 0018 00000000 	.LSFDE2:
+ 426 001c 58010000 		.4byte	.LEFDE2-.LASFDE2
+ 427              	.LASFDE2:
+ 428              		.4byte	.Lframe0
+ 429              		.4byte	.LFB3
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 11
+
+
+ 430 0020 20000000 		.4byte	.LFE3-.LFB3
+ 431              		.byte	0x4
+ 432 0024 00000000 		.4byte	.LCFI0-.LFB3
+ 433 0028 58010000 		.byte	0xd
+ 434 002c 20020000 		.uleb128 0xc
+ 435 0030 44       		.byte	0x4
+ 436              		.4byte	.LCFI1-.LCFI0
+ 437 0031 0D       		.byte	0x8e
+ 438 0032 0C       		.uleb128 0x2
+ 439 0033 44       		.byte	0x8d
+ 440              		.uleb128 0x3
+ 441 0034 8E       		.byte	0x8b
+ 442 0035 02       		.uleb128 0x4
+ 443 0036 8D       		.byte	0x85
+ 444 0037 03       		.uleb128 0x5
+ 445 0038 8B       		.byte	0x84
+ 446 0039 04       		.uleb128 0x6
+ 447 003a 85       		.byte	0x4
+ 448 003b 05       		.4byte	.LCFI2-.LCFI1
+ 449 003c 84       		.byte	0xc
+ 450 003d 06       		.uleb128 0xb
+ 451 003e 44       		.uleb128 0x4
+ 452              		.align	2
+ 453 003f 0C       	.LEFDE2:
+ 454 0040 0B       		.text
+ 455 0041 04       	.Letext0:
+ 456 0042 0000     		.section	.debug_loc,"",%progbits
+ 457              	.Ldebug_loc0:
+ 458              	.LLST1:
+ 459              		.4byte	.LFB3-.Ltext0
+ 460              		.4byte	.LCFI0-.Ltext0
+ 461              		.2byte	0x1
+ 462              		.byte	0x5d
+ 463 0000 58010000 		.4byte	.LCFI0-.Ltext0
+ 464 0004 5C010000 		.4byte	.LCFI2-.Ltext0
+ 465 0008 0100     		.2byte	0x1
+ 466 000a 5D       		.byte	0x5c
+ 467 000b 5C010000 		.4byte	.LCFI2-.Ltext0
+ 468 000f 64010000 		.4byte	.LFE3-.Ltext0
+ 469 0013 0100     		.2byte	0x2
+ 470 0015 5C       		.byte	0x7b
+ 471 0016 64010000 		.sleb128 4
+ 472 001a 78030000 		.4byte	0x0
+ 473 001e 0200     		.4byte	0x0
+ 474 0020 7B       		.section	.debug_info
+ 475 0021 04       		.4byte	0x15b
+ 476 0022 00000000 		.2byte	0x2
+ 477 0026 00000000 		.4byte	.Ldebug_abbrev0
+ 478              		.byte	0x4
+ 479 0000 5B010000 		.uleb128 0x1
+ 480 0004 0200     		.4byte	.LASF19
+ 481 0006 00000000 		.byte	0x4
+ 482 000a 04       		.4byte	.LASF20
+ 483 000b 01       		.4byte	.LASF21
+ 484 000c 10010000 		.4byte	.Ltext0
+ 485 0010 04       		.4byte	.Letext0
+ 486 0011 24000000 		.4byte	.Ldebug_line0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 12
+
+
+ 487 0015 32000000 		.uleb128 0x2
+ 488 0019 00000000 		.byte	0x4
+ 489 001d 78030000 		.byte	0x7
+ 490 0021 00000000 		.4byte	.LASF0
+ 491 0025 02       		.uleb128 0x2
+ 492 0026 04       		.byte	0x1
+ 493 0027 07       		.byte	0x6
+ 494 0028 17000000 		.4byte	.LASF1
+ 495 002c 02       		.uleb128 0x2
+ 496 002d 01       		.byte	0x1
+ 497 002e 06       		.byte	0x8
+ 498 002f 04010000 		.4byte	.LASF2
+ 499 0033 02       		.uleb128 0x2
+ 500 0034 01       		.byte	0x2
+ 501 0035 08       		.byte	0x5
+ 502 0036 AD000000 		.4byte	.LASF3
+ 503 003a 02       		.uleb128 0x2
+ 504 003b 02       		.byte	0x2
+ 505 003c 05       		.byte	0x7
+ 506 003d 32010000 		.4byte	.LASF4
+ 507 0041 02       		.uleb128 0x3
+ 508 0042 02       		.byte	0x4
+ 509 0043 07       		.byte	0x5
+ 510 0044 F1000000 		.ascii	"int\000"
+ 511 0048 03       		.uleb128 0x2
+ 512 0049 04       		.byte	0x8
+ 513 004a 05       		.byte	0x5
+ 514 004b 696E7400 		.4byte	.LASF5
+ 515 004f 02       		.uleb128 0x2
+ 516 0050 08       		.byte	0x8
+ 517 0051 05       		.byte	0x7
+ 518 0052 00000000 		.4byte	.LASF6
+ 519 0056 02       		.uleb128 0x2
+ 520 0057 08       		.byte	0x4
+ 521 0058 07       		.byte	0x5
+ 522 0059 87000000 		.4byte	.LASF7
+ 523 005d 02       		.uleb128 0x4
+ 524 005e 04       		.byte	0x4
+ 525 005f 05       		.byte	0x7
+ 526 0060 C7000000 		.uleb128 0x2
+ 527 0064 04       		.byte	0x4
+ 528 0065 04       		.byte	0x7
+ 529 0066 07       		.4byte	.LASF8
+ 530 0067 02       		.uleb128 0x2
+ 531 0068 04       		.byte	0x1
+ 532 0069 07       		.byte	0x8
+ 533 006a D0000000 		.4byte	.LASF9
+ 534 006e 02       		.uleb128 0x2
+ 535 006f 01       		.byte	0x8
+ 536 0070 08       		.byte	0x4
+ 537 0071 3C010000 		.4byte	.LASF10
+ 538 0075 02       		.uleb128 0x2
+ 539 0076 08       		.byte	0x4
+ 540 0077 04       		.byte	0x4
+ 541 0078 E2000000 		.4byte	.LASF11
+ 542 007c 02       		.uleb128 0x2
+ 543 007d 04       		.byte	0x8
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 13
+
+
+ 544 007e 04       		.byte	0x4
+ 545 007f A7000000 		.4byte	.LASF12
+ 546 0083 02       		.uleb128 0x5
+ 547 0084 08       		.4byte	0x25
+ 548 0085 04       		.uleb128 0x6
+ 549 0086 26010000 		.byte	0x1
+ 550 008a 05       		.4byte	.LASF22
+ 551 008b 25000000 		.byte	0x1
+ 552 008f 06       		.byte	0x43
+ 553 0090 01       		.byte	0x1
+ 554 0091 41010000 		.uleb128 0x7
+ 555 0095 01       		.4byte	0x8f
+ 556 0096 43       		.4byte	.LFB2
+ 557 0097 01       		.4byte	.LFE2
+ 558 0098 07       		.byte	0x1
+ 559 0099 8F000000 		.byte	0x5d
+ 560 009d 00000000 		.uleb128 0x8
+ 561 00a1 58010000 		.byte	0x1
+ 562 00a5 01       		.4byte	.LASF23
+ 563 00a6 5D       		.byte	0x1
+ 564 00a7 08       		.byte	0x70
+ 565 00a8 01       		.4byte	0x48
+ 566 00a9 2D000000 		.4byte	.LFB3
+ 567 00ad 01       		.4byte	.LFE3
+ 568 00ae 70       		.4byte	.LLST1
+ 569 00af 48000000 		.4byte	0xcf
+ 570 00b3 58010000 		.uleb128 0x9
+ 571 00b7 78030000 		.4byte	0x8f
+ 572 00bb 00000000 		.4byte	.Ldebug_ranges0+0x0
+ 573 00bf CF000000 		.byte	0x1
+ 574 00c3 09       		.byte	0x8b
+ 575 00c4 8F000000 		.byte	0x0
+ 576 00c8 00000000 		.uleb128 0xa
+ 577 00cc 01       		.4byte	.LASF13
+ 578 00cd 8B       		.byte	0x1
+ 579 00ce 00       		.byte	0x35
+ 580 00cf 0A       		.4byte	0x25
+ 581 00d0 9E000000 		.byte	0x1
+ 582 00d4 01       		.byte	0x5
+ 583 00d5 35       		.byte	0x3
+ 584 00d6 25000000 		.4byte	gAddress
+ 585 00da 01       		.uleb128 0xa
+ 586 00db 05       		.4byte	.LASF14
+ 587 00dc 03       		.byte	0x1
+ 588 00dd 00000000 		.byte	0x36
+ 589 00e1 0A       		.4byte	0x25
+ 590 00e2 BB000000 		.byte	0x1
+ 591 00e6 01       		.byte	0x5
+ 592 00e7 36       		.byte	0x3
+ 593 00e8 25000000 		.4byte	gAddressPgm
+ 594 00ec 01       		.uleb128 0xb
+ 595 00ed 05       		.4byte	0x33
+ 596 00ee 03       		.4byte	0x104
+ 597 00ef 00000000 		.uleb128 0xc
+ 598 00f3 0B       		.4byte	0x64
+ 599 00f4 33000000 		.2byte	0x1ff
+ 600 00f8 04010000 		.byte	0x0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 14
+
+
+ 601 00fc 0C       		.uleb128 0xa
+ 602 00fd 64000000 		.4byte	.LASF15
+ 603 0101 FF01     		.byte	0x1
+ 604 0103 00       		.byte	0x37
+ 605 0104 0A       		.4byte	0xf3
+ 606 0105 E9000000 		.byte	0x1
+ 607 0109 01       		.byte	0x5
+ 608 010a 37       		.byte	0x3
+ 609 010b F3000000 		.4byte	gBuffer
+ 610 010f 01       		.uleb128 0xa
+ 611 0110 05       		.4byte	.LASF16
+ 612 0111 03       		.byte	0x1
+ 613 0112 00000000 		.byte	0x38
+ 614 0116 0A       		.4byte	0x33
+ 615 0117 1E010000 		.byte	0x1
+ 616 011b 01       		.byte	0x5
+ 617 011c 38       		.byte	0x3
+ 618 011d 33000000 		.4byte	gDevice
+ 619 0121 01       		.uleb128 0xa
+ 620 0122 05       		.4byte	.LASF17
+ 621 0123 03       		.byte	0x1
+ 622 0124 00000000 		.byte	0x39
+ 623 0128 0A       		.4byte	0x33
+ 624 0129 0E000000 		.byte	0x1
+ 625 012d 01       		.byte	0x5
+ 626 012e 39       		.byte	0x3
+ 627 012f 33000000 		.4byte	gDevType
+ 628 0133 01       		.uleb128 0xa
+ 629 0134 05       		.4byte	.LASF18
+ 630 0135 03       		.byte	0x1
+ 631 0136 00000000 		.byte	0x3b
+ 632 013a 0A       		.4byte	0x8a
+ 633 013b 81000000 		.byte	0x1
+ 634 013f 01       		.byte	0x5
+ 635 0140 3B       		.byte	0x3
+ 636 0141 8A000000 		.4byte	purge
+ 637 0145 01       		.uleb128 0xd
+ 638 0146 05       		.ascii	"num\000"
+ 639 0147 03       		.byte	0x1
+ 640 0148 00000000 		.byte	0x3c
+ 641 014c 0D       		.4byte	0x25
+ 642 014d 6E756D00 		.byte	0x1
+ 643 0151 01       		.byte	0x5
+ 644 0152 3C       		.byte	0x3
+ 645 0153 25000000 		.4byte	num
+ 646 0157 01       		.byte	0x0
+ 647 0158 05       		.section	.debug_abbrev
+ 648 0159 03       		.uleb128 0x1
+ 649 015a 00000000 		.uleb128 0x11
+ 650 015e 00       		.byte	0x1
+ 651              		.uleb128 0x25
+ 652 0000 01       		.uleb128 0xe
+ 653 0001 11       		.uleb128 0x13
+ 654 0002 01       		.uleb128 0xb
+ 655 0003 25       		.uleb128 0x3
+ 656 0004 0E       		.uleb128 0xe
+ 657 0005 13       		.uleb128 0x1b
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 15
+
+
+ 658 0006 0B       		.uleb128 0xe
+ 659 0007 03       		.uleb128 0x11
+ 660 0008 0E       		.uleb128 0x1
+ 661 0009 1B       		.uleb128 0x12
+ 662 000a 0E       		.uleb128 0x1
+ 663 000b 11       		.uleb128 0x10
+ 664 000c 01       		.uleb128 0x6
+ 665 000d 12       		.byte	0x0
+ 666 000e 01       		.byte	0x0
+ 667 000f 10       		.uleb128 0x2
+ 668 0010 06       		.uleb128 0x24
+ 669 0011 00       		.byte	0x0
+ 670 0012 00       		.uleb128 0xb
+ 671 0013 02       		.uleb128 0xb
+ 672 0014 24       		.uleb128 0x3e
+ 673 0015 00       		.uleb128 0xb
+ 674 0016 0B       		.uleb128 0x3
+ 675 0017 0B       		.uleb128 0xe
+ 676 0018 3E       		.byte	0x0
+ 677 0019 0B       		.byte	0x0
+ 678 001a 03       		.uleb128 0x3
+ 679 001b 0E       		.uleb128 0x24
+ 680 001c 00       		.byte	0x0
+ 681 001d 00       		.uleb128 0xb
+ 682 001e 03       		.uleb128 0xb
+ 683 001f 24       		.uleb128 0x3e
+ 684 0020 00       		.uleb128 0xb
+ 685 0021 0B       		.uleb128 0x3
+ 686 0022 0B       		.uleb128 0x8
+ 687 0023 3E       		.byte	0x0
+ 688 0024 0B       		.byte	0x0
+ 689 0025 03       		.uleb128 0x4
+ 690 0026 08       		.uleb128 0x24
+ 691 0027 00       		.byte	0x0
+ 692 0028 00       		.uleb128 0xb
+ 693 0029 04       		.uleb128 0xb
+ 694 002a 24       		.uleb128 0x3e
+ 695 002b 00       		.uleb128 0xb
+ 696 002c 0B       		.byte	0x0
+ 697 002d 0B       		.byte	0x0
+ 698 002e 3E       		.uleb128 0x5
+ 699 002f 0B       		.uleb128 0x35
+ 700 0030 00       		.byte	0x0
+ 701 0031 00       		.uleb128 0x49
+ 702 0032 05       		.uleb128 0x13
+ 703 0033 35       		.byte	0x0
+ 704 0034 00       		.byte	0x0
+ 705 0035 49       		.uleb128 0x6
+ 706 0036 13       		.uleb128 0x2e
+ 707 0037 00       		.byte	0x0
+ 708 0038 00       		.uleb128 0x3f
+ 709 0039 06       		.uleb128 0xc
+ 710 003a 2E       		.uleb128 0x3
+ 711 003b 00       		.uleb128 0xe
+ 712 003c 3F       		.uleb128 0x3a
+ 713 003d 0C       		.uleb128 0xb
+ 714 003e 03       		.uleb128 0x3b
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 16
+
+
+ 715 003f 0E       		.uleb128 0xb
+ 716 0040 3A       		.uleb128 0x20
+ 717 0041 0B       		.uleb128 0xb
+ 718 0042 3B       		.byte	0x0
+ 719 0043 0B       		.byte	0x0
+ 720 0044 20       		.uleb128 0x7
+ 721 0045 0B       		.uleb128 0x2e
+ 722 0046 00       		.byte	0x0
+ 723 0047 00       		.uleb128 0x31
+ 724 0048 07       		.uleb128 0x13
+ 725 0049 2E       		.uleb128 0x11
+ 726 004a 00       		.uleb128 0x1
+ 727 004b 31       		.uleb128 0x12
+ 728 004c 13       		.uleb128 0x1
+ 729 004d 11       		.uleb128 0x40
+ 730 004e 01       		.uleb128 0xa
+ 731 004f 12       		.byte	0x0
+ 732 0050 01       		.byte	0x0
+ 733 0051 40       		.uleb128 0x8
+ 734 0052 0A       		.uleb128 0x2e
+ 735 0053 00       		.byte	0x1
+ 736 0054 00       		.uleb128 0x3f
+ 737 0055 08       		.uleb128 0xc
+ 738 0056 2E       		.uleb128 0x3
+ 739 0057 01       		.uleb128 0xe
+ 740 0058 3F       		.uleb128 0x3a
+ 741 0059 0C       		.uleb128 0xb
+ 742 005a 03       		.uleb128 0x3b
+ 743 005b 0E       		.uleb128 0xb
+ 744 005c 3A       		.uleb128 0x49
+ 745 005d 0B       		.uleb128 0x13
+ 746 005e 3B       		.uleb128 0x11
+ 747 005f 0B       		.uleb128 0x1
+ 748 0060 49       		.uleb128 0x12
+ 749 0061 13       		.uleb128 0x1
+ 750 0062 11       		.uleb128 0x40
+ 751 0063 01       		.uleb128 0x6
+ 752 0064 12       		.uleb128 0x1
+ 753 0065 01       		.uleb128 0x13
+ 754 0066 40       		.byte	0x0
+ 755 0067 06       		.byte	0x0
+ 756 0068 01       		.uleb128 0x9
+ 757 0069 13       		.uleb128 0x1d
+ 758 006a 00       		.byte	0x0
+ 759 006b 00       		.uleb128 0x31
+ 760 006c 09       		.uleb128 0x13
+ 761 006d 1D       		.uleb128 0x55
+ 762 006e 00       		.uleb128 0x6
+ 763 006f 31       		.uleb128 0x58
+ 764 0070 13       		.uleb128 0xb
+ 765 0071 55       		.uleb128 0x59
+ 766 0072 06       		.uleb128 0xb
+ 767 0073 58       		.byte	0x0
+ 768 0074 0B       		.byte	0x0
+ 769 0075 59       		.uleb128 0xa
+ 770 0076 0B       		.uleb128 0x34
+ 771 0077 00       		.byte	0x0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 17
+
+
+ 772 0078 00       		.uleb128 0x3
+ 773 0079 0A       		.uleb128 0xe
+ 774 007a 34       		.uleb128 0x3a
+ 775 007b 00       		.uleb128 0xb
+ 776 007c 03       		.uleb128 0x3b
+ 777 007d 0E       		.uleb128 0xb
+ 778 007e 3A       		.uleb128 0x49
+ 779 007f 0B       		.uleb128 0x13
+ 780 0080 3B       		.uleb128 0x3f
+ 781 0081 0B       		.uleb128 0xc
+ 782 0082 49       		.uleb128 0x2
+ 783 0083 13       		.uleb128 0xa
+ 784 0084 3F       		.byte	0x0
+ 785 0085 0C       		.byte	0x0
+ 786 0086 02       		.uleb128 0xb
+ 787 0087 0A       		.uleb128 0x1
+ 788 0088 00       		.byte	0x1
+ 789 0089 00       		.uleb128 0x49
+ 790 008a 0B       		.uleb128 0x13
+ 791 008b 01       		.uleb128 0x1
+ 792 008c 01       		.uleb128 0x13
+ 793 008d 49       		.byte	0x0
+ 794 008e 13       		.byte	0x0
+ 795 008f 01       		.uleb128 0xc
+ 796 0090 13       		.uleb128 0x21
+ 797 0091 00       		.byte	0x0
+ 798 0092 00       		.uleb128 0x49
+ 799 0093 0C       		.uleb128 0x13
+ 800 0094 21       		.uleb128 0x2f
+ 801 0095 00       		.uleb128 0x5
+ 802 0096 49       		.byte	0x0
+ 803 0097 13       		.byte	0x0
+ 804 0098 2F       		.uleb128 0xd
+ 805 0099 05       		.uleb128 0x34
+ 806 009a 00       		.byte	0x0
+ 807 009b 00       		.uleb128 0x3
+ 808 009c 0D       		.uleb128 0x8
+ 809 009d 34       		.uleb128 0x3a
+ 810 009e 00       		.uleb128 0xb
+ 811 009f 03       		.uleb128 0x3b
+ 812 00a0 08       		.uleb128 0xb
+ 813 00a1 3A       		.uleb128 0x49
+ 814 00a2 0B       		.uleb128 0x13
+ 815 00a3 3B       		.uleb128 0x3f
+ 816 00a4 0B       		.uleb128 0xc
+ 817 00a5 49       		.uleb128 0x2
+ 818 00a6 13       		.uleb128 0xa
+ 819 00a7 3F       		.byte	0x0
+ 820 00a8 0C       		.byte	0x0
+ 821 00a9 02       		.byte	0x0
+ 822 00aa 0A       		.section	.debug_pubnames,"",%progbits
+ 823 00ab 00       		.4byte	0x77
+ 824 00ac 00       		.2byte	0x2
+ 825 00ad 00       		.4byte	.Ldebug_info0
+ 826              		.4byte	0x15f
+ 827 0000 77000000 		.4byte	0x98
+ 828 0004 0200     		.ascii	"ledSpin\000"
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 18
+
+
+ 829 0006 00000000 		.4byte	0xa7
+ 830 000a 5F010000 		.ascii	"main\000"
+ 831 000e 98000000 		.4byte	0xcf
+ 832 0012 6C656453 		.ascii	"gAddress\000"
+ 832      70696E00 
+ 833 001a A7000000 		.4byte	0xe1
+ 834 001e 6D61696E 		.ascii	"gAddressPgm\000"
+ 834      00
+ 835 0023 CF000000 		.4byte	0x104
+ 836 0027 67416464 		.ascii	"gBuffer\000"
+ 836      72657373 
+ 836      00
+ 837 0030 E1000000 		.4byte	0x116
+ 838 0034 67416464 		.ascii	"gDevice\000"
+ 838      72657373 
+ 838      50676D00 
+ 839 0040 04010000 		.4byte	0x128
+ 840 0044 67427566 		.ascii	"gDevType\000"
+ 840      66657200 
+ 841 004c 16010000 		.4byte	0x13a
+ 842 0050 67446576 		.ascii	"purge\000"
+ 842      69636500 
+ 843 0058 28010000 		.4byte	0x14c
+ 844 005c 67446576 		.ascii	"num\000"
+ 844      54797065 
+ 844      00
+ 845 0065 3A010000 		.4byte	0x0
+ 846 0069 70757267 		.section	.debug_aranges,"",%progbits
+ 846      6500
+ 847 006f 4C010000 		.4byte	0x1c
+ 848 0073 6E756D00 		.2byte	0x2
+ 849 0077 00000000 		.4byte	.Ldebug_info0
+ 850              		.byte	0x4
+ 851 0000 1C000000 		.byte	0x0
+ 852 0004 0200     		.2byte	0x0
+ 853 0006 00000000 		.2byte	0x0
+ 854 000a 04       		.4byte	.Ltext0
+ 855 000b 00       		.4byte	.Letext0-.Ltext0
+ 856 000c 0000     		.4byte	0x0
+ 857 000e 0000     		.4byte	0x0
+ 858 0010 00000000 		.section	.debug_ranges,"",%progbits
+ 859 0014 78030000 	.Ldebug_ranges0:
+ 860 0018 00000000 		.4byte	.LBB4-.Ltext0
+ 861 001c 00000000 		.4byte	.LBE4-.Ltext0
+ 862              		.4byte	.LBB7-.Ltext0
+ 863              		.4byte	.LBE7-.Ltext0
+ 864 0000 50020000 		.4byte	0x0
+ 865 0004 58020000 		.4byte	0x0
+ 866 0008 60020000 		.section	.debug_str,"MS",%progbits,1
+ 867 000c 78030000 	.LASF5:
+ 868 0010 00000000 		.ascii	"long long int\000"
+ 869 0014 00000000 	.LASF17:
+ 870              		.ascii	"gDevType\000"
+ 871              	.LASF0:
+ 872 0000 6C6F6E67 		.ascii	"unsigned int\000"
+ 872      206C6F6E 
+ 872      6720696E 
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 19
+
+
+ 872      7400
+ 873              	.LASF20:
+ 874 000e 67446576 		.ascii	"main.cpp\000"
+ 874      54797065 
+ 874      00
+ 875              	.LASF23:
+ 876 0017 756E7369 		.ascii	"main\000"
+ 876      676E6564 
+ 876      20696E74 
+ 876      00
+ 877              	.LASF21:
+ 878 0024 6D61696E 		.ascii	"C:\\Users\\Chris\\Desktop\\antipasto_java\\antipast"
+ 878      2E637070 
+ 878      00
+ 879              		.ascii	"o_arduino\\hardware\\cores\\sfboard\000"
+ 880 002d 6D61696E 	.LASF18:
+ 880      00
+ 881              		.ascii	"purge\000"
+ 882 0032 433A5C55 	.LASF6:
+ 882      73657273 
+ 882      5C436872 
+ 882      69735C44 
+ 882      65736B74 
+ 883 0060 6F5F6172 		.ascii	"long long unsigned int\000"
+ 883      6475696E 
+ 883      6F5C6861 
+ 883      72647761 
+ 883      72655C63 
+ 884              	.LASF13:
+ 885 0081 70757267 		.ascii	"gAddress\000"
+ 885      6500
+ 886              	.LASF11:
+ 887 0087 6C6F6E67 		.ascii	"float\000"
+ 887      206C6F6E 
+ 887      6720756E 
+ 887      7369676E 
+ 887      65642069 
+ 888              	.LASF2:
+ 889 009e 67416464 		.ascii	"unsigned char\000"
+ 889      72657373 
+ 889      00
+ 890              	.LASF14:
+ 891 00a7 666C6F61 		.ascii	"gAddressPgm\000"
+ 891      7400
+ 892              	.LASF7:
+ 893 00ad 756E7369 		.ascii	"long int\000"
+ 893      676E6564 
+ 893      20636861 
+ 893      7200
+ 894              	.LASF8:
+ 895 00bb 67416464 		.ascii	"long unsigned int\000"
+ 895      72657373 
+ 895      50676D00 
+ 896              	.LASF10:
+ 897 00c7 6C6F6E67 		.ascii	"double\000"
+ 897      20696E74 
+ 897      00
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 20
+
+
+ 898              	.LASF15:
+ 899 00d0 6C6F6E67 		.ascii	"gBuffer\000"
+ 899      20756E73 
+ 899      69676E65 
+ 899      6420696E 
+ 899      7400
+ 900              	.LASF4:
+ 901 00e2 646F7562 		.ascii	"short unsigned int\000"
+ 901      6C6500
+ 902              	.LASF1:
+ 903 00e9 67427566 		.ascii	"signed char\000"
+ 903      66657200 
+ 904              	.LASF19:
+ 905 00f1 73686F72 		.ascii	"GNU C++ 4.3.2\000"
+ 905      7420756E 
+ 905      7369676E 
+ 905      65642069 
+ 905      6E7400
+ 906              	.LASF16:
+ 907 0104 7369676E 		.ascii	"gDevice\000"
+ 907      65642063 
+ 907      68617200 
+ 908              	.LASF12:
+ 909 0110 474E5520 		.ascii	"long double\000"
+ 909      432B2B20 
+ 909      342E332E 
+ 909      3200
+ 910              	.LASF3:
+ 911 011e 67446576 		.ascii	"short int\000"
+ 911      69636500 
+ 912              	.LASF9:
+ 913 0126 6C6F6E67 		.ascii	"char\000"
+ 913      20646F75 
+ 913      626C6500 
+ 914              	.LASF22:
+ 915 0132 73686F72 		.ascii	"ledSpin\000"
+ 915      7420696E 
+ 915      7400
+ 916              		.ident	"GCC: (Sourcery G++ Lite 2008q3-39) 4.3.2"
+ 917 013c 63686172 	...
+ 917      00
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s 			page 21
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.cpp
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:23     .text:00000000 _Z7ledSpinv
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:33     .text:00000000 $a
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:69     .text:0000006c $d
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:75     .text:0000007c $a
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:150    .text:00000154 $d
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:158    .text:00000158 main
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:166    .text:00000158 $a
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:288    .text:000002ac $d
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:294    .text:000002bc $a
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:360    .text:00000374 $d
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:392    .bss:00000008 gAddress
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:377    .data:00000000 gAddressPgm
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:396    .bss:0000000c gBuffer
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:400    .bss:0000020c gDevice
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:404    .bss:0000020d gDevType
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:384    .bss:00000000 purge
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:388    .bss:00000004 num
+C:\Users\Chris\AppData\Local\Temp/cc4kbaaa.s:378    .data:00000000 $d
+
+UNDEFINED SYMBOLS
+_Z7sysInitv
+_Z8GPIOInitmmmm
+__aeabi_unwind_cpp_pr1

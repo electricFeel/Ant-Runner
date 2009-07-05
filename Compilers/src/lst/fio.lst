@@ -1,0 +1,623 @@
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 1
+
+
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 18, 4
+  11              		.file	"fio.cpp"
+  12              		.section	.debug_abbrev,"",%progbits
+  13              	.Ldebug_abbrev0:
+  14              		.section	.debug_info,"",%progbits
+  15              	.Ldebug_info0:
+  16              		.section	.debug_line,"",%progbits
+  17              	.Ldebug_line0:
+  18 0000 57000000 		.text
+  18      02002800 
+  18      00000201 
+  18      FB0E0D00 
+  18      01010101 
+  19              	.Ltext0:
+  20              		.align	2
+  21              		.global	_Z8GPIOInitmmmm
+  22              		.type	_Z8GPIOInitmmmm, %function
+  23              	_Z8GPIOInitmmmm:
+  24              		.fnstart
+  25              	.LFB2:
+  26              		.file 1 "fio.cpp"
+   1:fio.cpp       **** /*****************************************************************************
+   2:fio.cpp       ****  *   fio.c:  Fast I/O module file for NXP LPC23xx Family Microprocessors
+   3:fio.cpp       ****  *
+   4:fio.cpp       ****  *   Copyright(C) 2006, NXP Semiconductor
+   5:fio.cpp       ****  *   All rights reserved.
+   6:fio.cpp       ****  *
+   7:fio.cpp       ****  *   History
+   8:fio.cpp       ****  *   2006.07.13  ver 1.00    Prelimnary version, first Release
+   9:fio.cpp       ****  *
+  10:fio.cpp       ****  ******************************************************************************/
+  11:fio.cpp       **** 
+  12:fio.cpp       **** #include "LPC23xx.h"
+  13:fio.cpp       **** #include "type.h"
+  14:fio.cpp       **** //#include "irq.h"
+  15:fio.cpp       **** //#include "timer.h"
+  16:fio.cpp       **** #include "fio.h"
+  17:fio.cpp       **** 
+  18:fio.cpp       **** /*****************************************************************************
+  19:fio.cpp       **** ** Function name:   GPIOInit
+  20:fio.cpp       **** **
+  21:fio.cpp       **** ** Descriptions:    initialize GPIO port
+  22:fio.cpp       **** **
+  23:fio.cpp       **** ** parameters:      port number and port type, Fast I/O or
+  24:fio.cpp       **** **                  regular GPIO, direction, Mask
+  25:fio.cpp       **** ** Returned value:  None
+  26:fio.cpp       **** **
+  27:fio.cpp       **** *****************************************************************************/
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 2
+
+
+  28:fio.cpp       **** void GPIOInit( DWORD PortNum, DWORD PortType, DWORD PortDir, DWORD Mask )
+  27              	upports interworking.
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+  32              		.loc 1 30 0
+  29:fio.cpp       **** {
+  30:fio.cpp       **** 	if ( (PortType == REGULAR_PORT) && ((PortNum == 0) || (PortNum == 1)) )
+  33              	0, #1
+  34 0000 010050E3 		movhi	ip, #0
+  35 0004 00C0A083 		movls	ip, #1
+  36 0008 01C0A093 		cmp	r0, #1
+  37 000c 010050E3 		cmpls	r1, #2
+  38 0010 02005193 		.loc 1 28 0
+  39              		stmfd	sp!, {r4, r5}
+  40 0014 30002DE9 	.LCFI0:
+  41              		.loc 1 28 0
+  42              		mov	r4, r2
+  43 0018 0240A0E1 		mov	r5, r3
+  44 001c 0350A0E1 		.loc 1 30 0
+  45              		bne	.L2
+  46 0020 0F00001A 	.LVL1:
+  47              		.loc 1 32 0
+  31:fio.cpp       **** 	{
+  32:fio.cpp       **** 		SCS &= ~GPIOM;    /* set GPIOx to use regular I/O */
+  48              	70912
+  49 0024 0E22A0E3 		add	r2, r2, #2080768
+  50 0028 7F2982E2 		ldr	r3, [r2, #416]
+  51 002c A03192E5 		.loc 1 33 0
+  33:fio.cpp       **** 		if ( PortDir == DIR_OUT )
+  52              		r4, #1
+  53 0030 010054E3 		.loc 1 32 0
+  54              		bic	r3, r3, #1
+  55 0034 0130C3E3 		str	r3, [r2, #416]
+  56 0038 A03182E5 		.loc 1 33 0
+  57              		beq	.L9
+  58 003c 1B00000A 		.loc 1 41 0
+  34:fio.cpp       **** 		{
+  35:fio.cpp       **** 			(*(volatile unsigned long *)(REGULAR_PORT_DIR_BASE
+  36:fio.cpp       **** 				+ PortNum * REGULAR_PORT_DIR_INDEX)) |= Mask;
+  37:fio.cpp       **** 		}
+  38:fio.cpp       **** 		else
+  39:fio.cpp       **** 		{
+  40:fio.cpp       **** 			(*(volatile unsigned long *)(REGULAR_PORT_DIR_BASE
+  41:fio.cpp       **** 				+ PortNum * REGULAR_PORT_DIR_INDEX)) &= ~Mask;
+  59              	, r0, asl #4
+  60 0040 0032A0E1 		add	r3, r3, #-536870904
+  61 0044 8E3283E2 		add	r3, r3, #163840
+  62 0048 0A3983E2 		ldr	r1, [r3, #0]
+  63 004c 001093E5 	.LVL2:
+  64              		mvn	r2, r5
+  65 0050 0520E0E1 		and	r2, r2, r1
+  66 0054 012002E0 		str	r2, [r3, #0]
+  67 0058 002083E5 	.LVL3:
+  68              	.L7:
+  69              		.loc 1 62 0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 3
+
+
+  42:fio.cpp       **** 		}
+  43:fio.cpp       **** 	}
+  44:fio.cpp       **** 	else if ( PortType == FAST_PORT )
+  45:fio.cpp       **** 	{
+  46:fio.cpp       **** 		if ( (PortNum == 0) || (PortNum == 1) )
+  47:fio.cpp       **** 		{
+  48:fio.cpp       **** 			SCS |= GPIOM; /* set GPIOx to use Fast I/O */
+  49:fio.cpp       **** 		}
+  50:fio.cpp       **** 		if ( PortDir == DIR_OUT )
+  51:fio.cpp       **** 		{
+  52:fio.cpp       **** 			(*(volatile unsigned long *)(HS_PORT_DIR_BASE
+  53:fio.cpp       **** 				+ PortNum * HS_PORT_DIR_INDEX)) |= Mask;
+  54:fio.cpp       **** 		}
+  55:fio.cpp       **** 		else
+  56:fio.cpp       **** 		{
+  57:fio.cpp       **** 			(*(volatile unsigned long *)(HS_PORT_DIR_BASE
+  58:fio.cpp       **** 				+ PortNum * HS_PORT_DIR_INDEX)) &= ~Mask;
+  59:fio.cpp       **** 		}
+  60:fio.cpp       **** 	}
+  61:fio.cpp       **** 	return;
+  62:fio.cpp       **** }
+  70              	 {r4, r5}
+  71 005c 3000BDE8 		bx	lr
+  72 0060 1EFF2FE1 	.L2:
+  73              		.loc 1 44 0
+  74              		cmp	r1, #1
+  75 0064 010051E3 		bne	.L7
+  76 0068 FBFFFF1A 		.loc 1 46 0
+  77              		cmp	ip, #0
+  78 006c 00005CE3 		.loc 1 48 0
+  79              		movne	r2, #-536870912
+  80 0070 0E22A013 		addne	r2, r2, #2080768
+  81 0074 7F298212 		ldrne	r3, [r2, #416]
+  82 0078 A0319215 		orrne	r3, r3, #1
+  83 007c 01308313 		strne	r3, [r2, #416]
+  84 0080 A0318215 		.loc 1 50 0
+  85              		cmp	r4, #1
+  86 0084 010054E3 		beq	.L10
+  87 0088 0F00000A 		.loc 1 58 0
+  88              		add	r3, r0, #33292288
+  89 008c 7F3780E2 		add	r3, r3, #261120
+  90 0090 FF3B83E2 		add	r3, r3, #512
+  91 0094 023C83E2 		mov	r3, r3, asl #5
+  92 0098 8332A0E1 		ldr	r1, [r3, #0]
+  93 009c 001093E5 	.LVL4:
+  94              		mvn	r2, r5
+  95 00a0 0520E0E1 		and	r2, r2, r1
+  96 00a4 012002E0 		str	r2, [r3, #0]
+  97 00a8 002083E5 		b	.L7
+  98 00ac EAFFFFEA 	.LVL5:
+  99              	.L9:
+ 100              		.loc 1 36 0
+ 101              		mov	r2, r0, asl #4
+ 102 00b0 0022A0E1 		add	r2, r2, #-536870904
+ 103 00b4 8E2282E2 		add	r2, r2, #163840
+ 104 00b8 0A2982E2 		ldr	r3, [r2, #0]
+ 105 00bc 003092E5 		orr	r3, r3, r5
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 4
+
+
+ 106 00c0 053083E1 		str	r3, [r2, #0]
+ 107 00c4 003082E5 		b	.L7
+ 108 00c8 E3FFFFEA 	.L10:
+ 109              		.loc 1 53 0
+ 110              		add	r3, r0, #33292288
+ 111 00cc 7F3780E2 		add	r3, r3, #261120
+ 112 00d0 FF3B83E2 		add	r3, r3, #512
+ 113 00d4 023C83E2 		mov	r3, r3, asl #5
+ 114 00d8 8332A0E1 		ldr	r2, [r3, #0]
+ 115 00dc 002093E5 		orr	r2, r2, r5
+ 116 00e0 052082E1 		str	r2, [r3, #0]
+ 117 00e4 002083E5 		b	.L7
+ 118 00e8 DBFFFFEA 	.LFE2:
+ 119              		.cantunwind
+ 120              		.fnend
+ 121              		.size	_Z8GPIOInitmmmm, .-_Z8GPIOInitmmmm
+ 122              		.section	.debug_frame,"",%progbits
+ 123              	.Lframe0:
+ 124              		.4byte	.LECIE0-.LSCIE0
+ 125 0000 0C000000 	.LSCIE0:
+ 126              		.4byte	0xffffffff
+ 127 0004 FFFFFFFF 		.byte	0x1
+ 128 0008 01       		.ascii	"\000"
+ 129 0009 00       		.uleb128 0x1
+ 130 000a 01       		.sleb128 -4
+ 131 000b 7C       		.byte	0xe
+ 132 000c 0E       		.byte	0xc
+ 133 000d 0C       		.uleb128 0xd
+ 134 000e 0D       		.uleb128 0x0
+ 135 000f 00       		.align	2
+ 136              	.LECIE0:
+ 137              	.LSFDE0:
+ 138              		.4byte	.LEFDE0-.LASFDE0
+ 139 0010 14000000 	.LASFDE0:
+ 140              		.4byte	.Lframe0
+ 141 0014 00000000 		.4byte	.LFB2
+ 142 0018 00000000 		.4byte	.LFE2-.LFB2
+ 143 001c EC000000 		.byte	0x4
+ 144 0020 58       		.4byte	.LCFI0-.LFB2
+ 145              		.byte	0xe
+ 146 0021 0E       		.uleb128 0x8
+ 147 0022 08       		.byte	0x85
+ 148 0023 85       		.uleb128 0x1
+ 149 0024 01       		.byte	0x84
+ 150 0025 84       		.uleb128 0x2
+ 151 0026 02       		.align	2
+ 152 0027 00       	.LEFDE0:
+ 153              		.text
+ 154              	.Letext0:
+ 155              		.section	.debug_loc,"",%progbits
+ 156              	.Ldebug_loc0:
+ 157              	.LLST0:
+ 158              		.4byte	.LFB2-.Ltext0
+ 159 0000 00000000 		.4byte	.LCFI0-.Ltext0
+ 160 0004 18000000 		.2byte	0x1
+ 161 0008 0100     		.byte	0x5d
+ 162 000a 5D       		.4byte	.LCFI0-.Ltext0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 5
+
+
+ 163 000b 18000000 		.4byte	.LFE2-.Ltext0
+ 164 000f EC000000 		.2byte	0x2
+ 165 0013 0200     		.byte	0x7d
+ 166 0015 7D       		.sleb128 8
+ 167 0016 08       		.4byte	0x0
+ 168 0017 00000000 		.4byte	0x0
+ 169 001b 00000000 	.LLST1:
+ 170              		.4byte	.LVL0-.Ltext0
+ 171 001f 00000000 		.4byte	.LVL2-.Ltext0
+ 172 0023 50000000 		.2byte	0x1
+ 173 0027 0100     		.byte	0x51
+ 174 0029 51       		.4byte	.LVL3-.Ltext0
+ 175 002a 5C000000 		.4byte	.LVL4-.Ltext0
+ 176 002e A0000000 		.2byte	0x1
+ 177 0032 0100     		.byte	0x51
+ 178 0034 51       		.4byte	.LVL5-.Ltext0
+ 179 0035 B0000000 		.4byte	.LFE2-.Ltext0
+ 180 0039 EC000000 		.2byte	0x1
+ 181 003d 0100     		.byte	0x51
+ 182 003f 51       		.4byte	0x0
+ 183 0040 00000000 		.4byte	0x0
+ 184 0044 00000000 	.LLST2:
+ 185              		.4byte	.LVL0-.Ltext0
+ 186 0048 00000000 		.4byte	.LVL1-.Ltext0
+ 187 004c 24000000 		.2byte	0x1
+ 188 0050 0100     		.byte	0x52
+ 189 0052 52       		.4byte	.LVL1-.Ltext0
+ 190 0053 24000000 		.4byte	.LFE2-.Ltext0
+ 191 0057 EC000000 		.2byte	0x1
+ 192 005b 0100     		.byte	0x54
+ 193 005d 54       		.4byte	0x0
+ 194 005e 00000000 		.4byte	0x0
+ 195 0062 00000000 	.LLST3:
+ 196              		.4byte	.LVL0-.Ltext0
+ 197 0066 00000000 		.4byte	.LVL1-.Ltext0
+ 198 006a 24000000 		.2byte	0x1
+ 199 006e 0100     		.byte	0x53
+ 200 0070 53       		.4byte	.LVL1-.Ltext0
+ 201 0071 24000000 		.4byte	.LFE2-.Ltext0
+ 202 0075 EC000000 		.2byte	0x1
+ 203 0079 0100     		.byte	0x55
+ 204 007b 55       		.4byte	0x0
+ 205 007c 00000000 		.4byte	0x0
+ 206 0080 00000000 		.file 2 "type.h"
+ 207              		.section	.debug_info
+ 208              		.4byte	0xbf
+ 209 0000 BF000000 		.2byte	0x2
+ 210 0004 0200     		.4byte	.Ldebug_abbrev0
+ 211 0006 00000000 		.byte	0x4
+ 212 000a 04       		.uleb128 0x1
+ 213 000b 01       		.4byte	.LASF12
+ 214 000c E7000000 		.byte	0x4
+ 215 0010 04       		.4byte	.LASF13
+ 216 0011 8A000000 		.4byte	.LASF14
+ 217 0015 29000000 		.4byte	.Ltext0
+ 218 0019 00000000 		.4byte	.Letext0
+ 219 001d EC000000 		.4byte	.Ldebug_line0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 6
+
+
+ 220 0021 00000000 		.uleb128 0x2
+ 221 0025 02       		.byte	0x1
+ 222 0026 01       		.byte	0x8
+ 223 0027 08       		.4byte	.LASF0
+ 224 0028 B1000000 		.uleb128 0x2
+ 225 002c 02       		.byte	0x2
+ 226 002d 02       		.byte	0x7
+ 227 002e 07       		.4byte	.LASF1
+ 228 002f BF000000 		.uleb128 0x3
+ 229 0033 03       		.4byte	.LASF15
+ 230 0034 17010000 		.byte	0x2
+ 231 0038 02       		.byte	0x13
+ 232 0039 13       		.4byte	0x3e
+ 233 003a 3E000000 		.uleb128 0x2
+ 234 003e 02       		.byte	0x4
+ 235 003f 04       		.byte	0x7
+ 236 0040 07       		.4byte	.LASF2
+ 237 0041 78000000 		.uleb128 0x2
+ 238 0045 02       		.byte	0x4
+ 239 0046 04       		.byte	0x7
+ 240 0047 07       		.4byte	.LASF3
+ 241 0048 0E000000 		.uleb128 0x2
+ 242 004c 02       		.byte	0x1
+ 243 004d 01       		.byte	0x6
+ 244 004e 06       		.4byte	.LASF4
+ 245 004f D2000000 		.uleb128 0x2
+ 246 0053 02       		.byte	0x2
+ 247 0054 02       		.byte	0x5
+ 248 0055 05       		.4byte	.LASF5
+ 249 0056 0D010000 		.uleb128 0x4
+ 250 005a 04       		.byte	0x4
+ 251 005b 04       		.byte	0x5
+ 252 005c 05       		.ascii	"int\000"
+ 253 005d 696E7400 		.uleb128 0x2
+ 254 0061 02       		.byte	0x8
+ 255 0062 08       		.byte	0x5
+ 256 0063 05       		.4byte	.LASF6
+ 257 0064 00000000 		.uleb128 0x2
+ 258 0068 02       		.byte	0x8
+ 259 0069 08       		.byte	0x7
+ 260 006a 07       		.4byte	.LASF7
+ 261 006b 9A000000 		.uleb128 0x5
+ 262 006f 05       		.byte	0x1
+ 263 0070 01       		.4byte	.LASF16
+ 264 0071 DE000000 		.byte	0x1
+ 265 0075 01       		.byte	0x1c
+ 266 0076 1C       		.4byte	.LASF17
+ 267 0077 F5000000 		.4byte	.LFB2
+ 268 007b 00000000 		.4byte	.LFE2
+ 269 007f EC000000 		.4byte	.LLST0
+ 270 0083 00000000 		.uleb128 0x6
+ 271 0087 06       		.4byte	.LASF8
+ 272 0088 05010000 		.byte	0x1
+ 273 008c 01       		.byte	0x1c
+ 274 008d 1C       		.4byte	0x33
+ 275 008e 33000000 		.byte	0x1
+ 276 0092 01       		.byte	0x50
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 7
+
+
+ 277 0093 50       		.uleb128 0x7
+ 278 0094 07       		.4byte	.LASF9
+ 279 0095 20000000 		.byte	0x1
+ 280 0099 01       		.byte	0x1c
+ 281 009a 1C       		.4byte	0x33
+ 282 009b 33000000 		.4byte	.LLST1
+ 283 009f 1F000000 		.uleb128 0x7
+ 284 00a3 07       		.4byte	.LASF10
+ 285 00a4 92000000 		.byte	0x1
+ 286 00a8 01       		.byte	0x1c
+ 287 00a9 1C       		.4byte	0x33
+ 288 00aa 33000000 		.4byte	.LLST2
+ 289 00ae 48000000 		.uleb128 0x7
+ 290 00b2 07       		.4byte	.LASF11
+ 291 00b3 1B000000 		.byte	0x1
+ 292 00b7 01       		.byte	0x1c
+ 293 00b8 1C       		.4byte	0x33
+ 294 00b9 33000000 		.4byte	.LLST3
+ 295 00bd 66000000 		.byte	0x0
+ 296 00c1 00       		.byte	0x0
+ 297 00c2 00       		.section	.debug_abbrev
+ 298              		.uleb128 0x1
+ 299 0000 01       		.uleb128 0x11
+ 300 0001 11       		.byte	0x1
+ 301 0002 01       		.uleb128 0x25
+ 302 0003 25       		.uleb128 0xe
+ 303 0004 0E       		.uleb128 0x13
+ 304 0005 13       		.uleb128 0xb
+ 305 0006 0B       		.uleb128 0x3
+ 306 0007 03       		.uleb128 0xe
+ 307 0008 0E       		.uleb128 0x1b
+ 308 0009 1B       		.uleb128 0xe
+ 309 000a 0E       		.uleb128 0x11
+ 310 000b 11       		.uleb128 0x1
+ 311 000c 01       		.uleb128 0x12
+ 312 000d 12       		.uleb128 0x1
+ 313 000e 01       		.uleb128 0x10
+ 314 000f 10       		.uleb128 0x6
+ 315 0010 06       		.byte	0x0
+ 316 0011 00       		.byte	0x0
+ 317 0012 00       		.uleb128 0x2
+ 318 0013 02       		.uleb128 0x24
+ 319 0014 24       		.byte	0x0
+ 320 0015 00       		.uleb128 0xb
+ 321 0016 0B       		.uleb128 0xb
+ 322 0017 0B       		.uleb128 0x3e
+ 323 0018 3E       		.uleb128 0xb
+ 324 0019 0B       		.uleb128 0x3
+ 325 001a 03       		.uleb128 0xe
+ 326 001b 0E       		.byte	0x0
+ 327 001c 00       		.byte	0x0
+ 328 001d 00       		.uleb128 0x3
+ 329 001e 03       		.uleb128 0x16
+ 330 001f 16       		.byte	0x0
+ 331 0020 00       		.uleb128 0x3
+ 332 0021 03       		.uleb128 0xe
+ 333 0022 0E       		.uleb128 0x3a
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 8
+
+
+ 334 0023 3A       		.uleb128 0xb
+ 335 0024 0B       		.uleb128 0x3b
+ 336 0025 3B       		.uleb128 0xb
+ 337 0026 0B       		.uleb128 0x49
+ 338 0027 49       		.uleb128 0x13
+ 339 0028 13       		.byte	0x0
+ 340 0029 00       		.byte	0x0
+ 341 002a 00       		.uleb128 0x4
+ 342 002b 04       		.uleb128 0x24
+ 343 002c 24       		.byte	0x0
+ 344 002d 00       		.uleb128 0xb
+ 345 002e 0B       		.uleb128 0xb
+ 346 002f 0B       		.uleb128 0x3e
+ 347 0030 3E       		.uleb128 0xb
+ 348 0031 0B       		.uleb128 0x3
+ 349 0032 03       		.uleb128 0x8
+ 350 0033 08       		.byte	0x0
+ 351 0034 00       		.byte	0x0
+ 352 0035 00       		.uleb128 0x5
+ 353 0036 05       		.uleb128 0x2e
+ 354 0037 2E       		.byte	0x1
+ 355 0038 01       		.uleb128 0x3f
+ 356 0039 3F       		.uleb128 0xc
+ 357 003a 0C       		.uleb128 0x3
+ 358 003b 03       		.uleb128 0xe
+ 359 003c 0E       		.uleb128 0x3a
+ 360 003d 3A       		.uleb128 0xb
+ 361 003e 0B       		.uleb128 0x3b
+ 362 003f 3B       		.uleb128 0xb
+ 363 0040 0B       		.uleb128 0x2007
+ 364 0041 8740     		.uleb128 0xe
+ 365 0043 0E       		.uleb128 0x11
+ 366 0044 11       		.uleb128 0x1
+ 367 0045 01       		.uleb128 0x12
+ 368 0046 12       		.uleb128 0x1
+ 369 0047 01       		.uleb128 0x40
+ 370 0048 40       		.uleb128 0x6
+ 371 0049 06       		.byte	0x0
+ 372 004a 00       		.byte	0x0
+ 373 004b 00       		.uleb128 0x6
+ 374 004c 06       		.uleb128 0x5
+ 375 004d 05       		.byte	0x0
+ 376 004e 00       		.uleb128 0x3
+ 377 004f 03       		.uleb128 0xe
+ 378 0050 0E       		.uleb128 0x3a
+ 379 0051 3A       		.uleb128 0xb
+ 380 0052 0B       		.uleb128 0x3b
+ 381 0053 3B       		.uleb128 0xb
+ 382 0054 0B       		.uleb128 0x49
+ 383 0055 49       		.uleb128 0x13
+ 384 0056 13       		.uleb128 0x2
+ 385 0057 02       		.uleb128 0xa
+ 386 0058 0A       		.byte	0x0
+ 387 0059 00       		.byte	0x0
+ 388 005a 00       		.uleb128 0x7
+ 389 005b 07       		.uleb128 0x5
+ 390 005c 05       		.byte	0x0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 9
+
+
+ 391 005d 00       		.uleb128 0x3
+ 392 005e 03       		.uleb128 0xe
+ 393 005f 0E       		.uleb128 0x3a
+ 394 0060 3A       		.uleb128 0xb
+ 395 0061 0B       		.uleb128 0x3b
+ 396 0062 3B       		.uleb128 0xb
+ 397 0063 0B       		.uleb128 0x49
+ 398 0064 49       		.uleb128 0x13
+ 399 0065 13       		.uleb128 0x2
+ 400 0066 02       		.uleb128 0x6
+ 401 0067 06       		.byte	0x0
+ 402 0068 00       		.byte	0x0
+ 403 0069 00       		.byte	0x0
+ 404 006a 00       		.section	.debug_pubnames,"",%progbits
+ 405              		.4byte	0x1b
+ 406 0000 1B000000 		.2byte	0x2
+ 407 0004 0200     		.4byte	.Ldebug_info0
+ 408 0006 00000000 		.4byte	0xc3
+ 409 000a C3000000 		.4byte	0x6f
+ 410 000e 6F000000 		.ascii	"GPIOInit\000"
+ 411 0012 4750494F 		.4byte	0x0
+ 411      496E6974 
+ 411      00
+ 412 001b 00000000 		.section	.debug_aranges,"",%progbits
+ 413              		.4byte	0x1c
+ 414 0000 1C000000 		.2byte	0x2
+ 415 0004 0200     		.4byte	.Ldebug_info0
+ 416 0006 00000000 		.byte	0x4
+ 417 000a 04       		.byte	0x0
+ 418 000b 00       		.2byte	0x0
+ 419 000c 0000     		.2byte	0x0
+ 420 000e 0000     		.4byte	.Ltext0
+ 421 0010 00000000 		.4byte	.Letext0-.Ltext0
+ 422 0014 EC000000 		.4byte	0x0
+ 423 0018 00000000 		.4byte	0x0
+ 424 001c 00000000 		.section	.debug_str,"MS",%progbits,1
+ 425              	.LASF6:
+ 426              		.ascii	"long long int\000"
+ 427 0000 6C6F6E67 	.LASF3:
+ 427      206C6F6E 
+ 427      6720696E 
+ 427      7400
+ 428              		.ascii	"unsigned int\000"
+ 429 000e 756E7369 	.LASF11:
+ 429      676E6564 
+ 429      20696E74 
+ 429      00
+ 430              		.ascii	"Mask\000"
+ 431 001b 4D61736B 	.LASF9:
+ 431      00
+ 432              		.ascii	"PortType\000"
+ 433 0020 506F7274 	.LASF14:
+ 433      54797065 
+ 433      00
+ 434              		.ascii	"C:\\Users\\Chris\\Desktop\\antipasto_java\\antipast"
+ 435 0029 433A5C55 		.ascii	"o_arduino\\hardware\\cores\\sfboard\000"
+ 435      73657273 
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 10
+
+
+ 435      5C436872 
+ 435      69735C44 
+ 435      65736B74 
+ 436 0057 6F5F6172 	.LASF2:
+ 436      6475696E 
+ 436      6F5C6861 
+ 436      72647761 
+ 436      72655C63 
+ 437              		.ascii	"long unsigned int\000"
+ 438 0078 6C6F6E67 	.LASF13:
+ 438      20756E73 
+ 438      69676E65 
+ 438      6420696E 
+ 438      7400
+ 439              		.ascii	"fio.cpp\000"
+ 440 008a 66696F2E 	.LASF10:
+ 440      63707000 
+ 441              		.ascii	"PortDir\000"
+ 442 0092 506F7274 	.LASF7:
+ 442      44697200 
+ 443              		.ascii	"long long unsigned int\000"
+ 444 009a 6C6F6E67 	.LASF0:
+ 444      206C6F6E 
+ 444      6720756E 
+ 444      7369676E 
+ 444      65642069 
+ 445              		.ascii	"unsigned char\000"
+ 446 00b1 756E7369 	.LASF1:
+ 446      676E6564 
+ 446      20636861 
+ 446      7200
+ 447              		.ascii	"short unsigned int\000"
+ 448 00bf 73686F72 	.LASF4:
+ 448      7420756E 
+ 448      7369676E 
+ 448      65642069 
+ 448      6E7400
+ 449              		.ascii	"signed char\000"
+ 450 00d2 7369676E 	.LASF16:
+ 450      65642063 
+ 450      68617200 
+ 451              		.ascii	"GPIOInit\000"
+ 452 00de 4750494F 	.LASF12:
+ 452      496E6974 
+ 452      00
+ 453              		.ascii	"GNU C++ 4.3.2\000"
+ 454 00e7 474E5520 	.LASF17:
+ 454      432B2B20 
+ 454      342E332E 
+ 454      3200
+ 455              		.ascii	"_Z8GPIOInitmmmm\000"
+ 456 00f5 5F5A3847 	.LASF8:
+ 456      50494F49 
+ 456      6E69746D 
+ 456      6D6D6D00 
+ 457              		.ascii	"PortNum\000"
+ 458 0105 506F7274 	.LASF5:
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 11
+
+
+ 458      4E756D00 
+ 459              		.ascii	"short int\000"
+ 460 010d 73686F72 	.LASF15:
+ 460      7420696E 
+ 460      7400
+ 461              		.ascii	"DWORD\000"
+ 462 0117 44574F52 		.ident	"GCC: (Sourcery G++ Lite 2008q3-39) 4.3.2"
+ 462      4400
+ 463              	...
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s 			page 12
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 fio.cpp
+C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s:23     .text:00000000 _Z8GPIOInitmmmm
+C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s:34     .text:00000000 $a
+C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s:125    .debug_frame:00000000 $d
+C:\Users\Chris\AppData\Local\Temp/ccikaaaa.s:159    .debug_loc:00000000 $d
+
+NO UNDEFINED SYMBOLS

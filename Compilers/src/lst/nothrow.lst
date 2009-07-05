@@ -1,0 +1,888 @@
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 1
+
+
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 18, 4
+  11              		.file	"nothrow.cpp"
+  12              		.section	.debug_abbrev,"",%progbits
+  13              	.Ldebug_abbrev0:
+  14              		.section	.debug_info,"",%progbits
+  15              	.Ldebug_info0:
+  16              		.section	.debug_line,"",%progbits
+  17              	.Ldebug_line0:
+  18 0000 A5000000 		.text
+  18      02008900 
+  18      00000201 
+  18      FB0E0D00 
+  18      01010101 
+  19              	.Ltext0:
+  20              		.align	2
+  21              		.global	_Z5raisei
+  22              		.type	_Z5raisei, %function
+  23              	_Z5raisei:
+  24              		.fnstart
+  25              	.LFB4:
+  26              		.file 1 "nothrow.cpp"
+   1:nothrow.cpp   **** #include <stdlib.h>                   // for malloc and free
+   2:nothrow.cpp   **** 
+   3:nothrow.cpp   **** void *operator new(size_t size) throw() { return malloc(size); }
+   4:nothrow.cpp   **** 
+   5:nothrow.cpp   **** void operator delete(void *p) throw() { free(p); }
+   6:nothrow.cpp   **** 
+   7:nothrow.cpp   **** int raise(int sig) { return 0; }
+  27              	pports interworking.
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+  32              		.loc 1 7 0
+  33              		mov	r0, #0
+  34 0000 0000A0E3 	.LVL1:
+  35              		bx	lr
+  36 0004 1EFF2FE1 	.LFE4:
+  37              		.cantunwind
+  38              		.fnend
+  39              		.size	_Z5raisei, .-_Z5raisei
+  40              		.align	2
+  41              		.global	__aeabi_atexit
+  42              		.type	__aeabi_atexit, %function
+  43              	__aeabi_atexit:
+  44              		.fnstart
+  45              	.LFB5:
+  46              		.loc 1 11 0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 2
+
+
+   8:nothrow.cpp   **** n 0; }
+   9:nothrow.cpp   **** 
+  10:nothrow.cpp   **** extern "C" int __aeabi_atexit(void *object,
+  11:nothrow.cpp   ****                               void (*destructor)(void *),
+  47              	 interworking.
+  48              		@ args = 0, pretend = 0, frame = 0
+  49              		@ frame_needed = 0, uses_anonymous_args = 0
+  50              		@ link register save eliminated.
+  51              	.LVL2:
+  52              		.loc 1 14 0
+  12:nothrow.cpp   **** *),
+  13:nothrow.cpp   ****                               void *dso_handle)
+  14:nothrow.cpp   **** {
+  53              	0, #0
+  54 0008 0000A0E3 	.LVL3:
+  55              		bx	lr
+  56 000c 1EFF2FE1 	.LFE5:
+  57              		.cantunwind
+  58              		.fnend
+  59              		.size	__aeabi_atexit, .-__aeabi_atexit
+  60              		.align	2
+  61              		.global	_ZdlPv
+  62              		.type	_ZdlPv, %function
+  63              	_ZdlPv:
+  64              		.fnstart
+  65              	.LFB3:
+  66              		.loc 1 5 0
+  67              		@ Function supports interworking.
+  68              		@ args = 0, pretend = 0, frame = 0
+  69              		@ frame_needed = 1, uses_anonymous_args = 0
+  70              	.LVL4:
+  71              		mov	ip, sp
+  72 0010 0DC0A0E1 	.LCFI0:
+  73              		stmfd	sp!, {fp, ip, lr, pc}
+  74 0014 00D82DE9 	.LCFI1:
+  75              		sub	fp, ip, #4
+  76 0018 04B04CE2 	.LCFI2:
+  77              		.loc 1 5 0
+  78              		bl	free
+  79 001c FEFFFFEB 	.LVL5:
+  80              		sub	sp, fp, #12
+  81 0020 0CD04BE2 		ldmfd	sp, {fp, sp, lr}
+  82 0024 00689DE8 		bx	lr
+  83 0028 1EFF2FE1 	.LFE3:
+  84              		.cantunwind
+  85              		.fnend
+  86              		.size	_ZdlPv, .-_ZdlPv
+  87              		.align	2
+  88              		.global	_Znwj
+  89              		.type	_Znwj, %function
+  90              	_Znwj:
+  91              		.fnstart
+  92              	.LFB2:
+  93              		.loc 1 3 0
+  94              		@ Function supports interworking.
+  95              		@ args = 0, pretend = 0, frame = 0
+  96              		@ frame_needed = 1, uses_anonymous_args = 0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 3
+
+
+  97              	.LVL6:
+  98              		mov	ip, sp
+  99 002c 0DC0A0E1 	.LCFI3:
+ 100              		stmfd	sp!, {fp, ip, lr, pc}
+ 101 0030 00D82DE9 	.LCFI4:
+ 102              		sub	fp, ip, #4
+ 103 0034 04B04CE2 	.LCFI5:
+ 104              		.loc 1 3 0
+ 105              		bl	malloc
+ 106 0038 FEFFFFEB 	.LVL7:
+ 107              		sub	sp, fp, #12
+ 108 003c 0CD04BE2 		ldmfd	sp, {fp, sp, lr}
+ 109 0040 00689DE8 		bx	lr
+ 110 0044 1EFF2FE1 	.LFE2:
+ 111              		.cantunwind
+ 112              		.fnend
+ 113              		.size	_Znwj, .-_Znwj
+ 114              		.section	.debug_frame,"",%progbits
+ 115              	.Lframe0:
+ 116              		.4byte	.LECIE0-.LSCIE0
+ 117 0000 0C000000 	.LSCIE0:
+ 118              		.4byte	0xffffffff
+ 119 0004 FFFFFFFF 		.byte	0x1
+ 120 0008 01       		.ascii	"\000"
+ 121 0009 00       		.uleb128 0x1
+ 122 000a 01       		.sleb128 -4
+ 123 000b 7C       		.byte	0xe
+ 124 000c 0E       		.byte	0xc
+ 125 000d 0C       		.uleb128 0xd
+ 126 000e 0D       		.uleb128 0x0
+ 127 000f 00       		.align	2
+ 128              	.LECIE0:
+ 129              	.LSFDE0:
+ 130              		.4byte	.LEFDE0-.LASFDE0
+ 131 0010 0C000000 	.LASFDE0:
+ 132              		.4byte	.Lframe0
+ 133 0014 00000000 		.4byte	.LFB4
+ 134 0018 00000000 		.4byte	.LFE4-.LFB4
+ 135 001c 08000000 		.align	2
+ 136              	.LEFDE0:
+ 137              	.LSFDE2:
+ 138              		.4byte	.LEFDE2-.LASFDE2
+ 139 0020 0C000000 	.LASFDE2:
+ 140              		.4byte	.Lframe0
+ 141 0024 00000000 		.4byte	.LFB5
+ 142 0028 08000000 		.4byte	.LFE5-.LFB5
+ 143 002c 08000000 		.align	2
+ 144              	.LEFDE2:
+ 145              	.LSFDE4:
+ 146              		.4byte	.LEFDE4-.LASFDE4
+ 147 0030 1C000000 	.LASFDE4:
+ 148              		.4byte	.Lframe0
+ 149 0034 00000000 		.4byte	.LFB3
+ 150 0038 10000000 		.4byte	.LFE3-.LFB3
+ 151 003c 1C000000 		.byte	0x4
+ 152 0040 44       		.4byte	.LCFI0-.LFB3
+ 153              		.byte	0xd
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 4
+
+
+ 154 0041 0D       		.uleb128 0xc
+ 155 0042 0C       		.byte	0x4
+ 156 0043 44       		.4byte	.LCFI1-.LCFI0
+ 157              		.byte	0x8e
+ 158 0044 8E       		.uleb128 0x2
+ 159 0045 02       		.byte	0x8d
+ 160 0046 8D       		.uleb128 0x3
+ 161 0047 03       		.byte	0x8b
+ 162 0048 8B       		.uleb128 0x4
+ 163 0049 04       		.byte	0x4
+ 164 004a 44       		.4byte	.LCFI2-.LCFI1
+ 165              		.byte	0xc
+ 166 004b 0C       		.uleb128 0xb
+ 167 004c 0B       		.uleb128 0x4
+ 168 004d 04       		.align	2
+ 169 004e 0000     	.LEFDE4:
+ 170              	.LSFDE6:
+ 171              		.4byte	.LEFDE6-.LASFDE6
+ 172 0050 1C000000 	.LASFDE6:
+ 173              		.4byte	.Lframe0
+ 174 0054 00000000 		.4byte	.LFB2
+ 175 0058 2C000000 		.4byte	.LFE2-.LFB2
+ 176 005c 1C000000 		.byte	0x4
+ 177 0060 44       		.4byte	.LCFI3-.LFB2
+ 178              		.byte	0xd
+ 179 0061 0D       		.uleb128 0xc
+ 180 0062 0C       		.byte	0x4
+ 181 0063 44       		.4byte	.LCFI4-.LCFI3
+ 182              		.byte	0x8e
+ 183 0064 8E       		.uleb128 0x2
+ 184 0065 02       		.byte	0x8d
+ 185 0066 8D       		.uleb128 0x3
+ 186 0067 03       		.byte	0x8b
+ 187 0068 8B       		.uleb128 0x4
+ 188 0069 04       		.byte	0x4
+ 189 006a 44       		.4byte	.LCFI5-.LCFI4
+ 190              		.byte	0xc
+ 191 006b 0C       		.uleb128 0xb
+ 192 006c 0B       		.uleb128 0x4
+ 193 006d 04       		.align	2
+ 194 006e 0000     	.LEFDE6:
+ 195              		.text
+ 196              	.Letext0:
+ 197              		.section	.debug_loc,"",%progbits
+ 198              	.Ldebug_loc0:
+ 199              	.LLST1:
+ 200              		.4byte	.LVL0-.Ltext0
+ 201 0000 00000000 		.4byte	.LVL1-.Ltext0
+ 202 0004 04000000 		.2byte	0x1
+ 203 0008 0100     		.byte	0x50
+ 204 000a 50       		.4byte	0x0
+ 205 000b 00000000 		.4byte	0x0
+ 206 000f 00000000 	.LLST3:
+ 207              		.4byte	.LVL2-.Ltext0
+ 208 0013 08000000 		.4byte	.LVL3-.Ltext0
+ 209 0017 0C000000 		.2byte	0x1
+ 210 001b 0100     		.byte	0x50
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 5
+
+
+ 211 001d 50       		.4byte	0x0
+ 212 001e 00000000 		.4byte	0x0
+ 213 0022 00000000 	.LLST4:
+ 214              		.4byte	.LFB3-.Ltext0
+ 215 0026 10000000 		.4byte	.LCFI0-.Ltext0
+ 216 002a 14000000 		.2byte	0x1
+ 217 002e 0100     		.byte	0x5d
+ 218 0030 5D       		.4byte	.LCFI0-.Ltext0
+ 219 0031 14000000 		.4byte	.LCFI2-.Ltext0
+ 220 0035 1C000000 		.2byte	0x1
+ 221 0039 0100     		.byte	0x5c
+ 222 003b 5C       		.4byte	.LCFI2-.Ltext0
+ 223 003c 1C000000 		.4byte	.LFE3-.Ltext0
+ 224 0040 2C000000 		.2byte	0x2
+ 225 0044 0200     		.byte	0x7b
+ 226 0046 7B       		.sleb128 4
+ 227 0047 04       		.4byte	0x0
+ 228 0048 00000000 		.4byte	0x0
+ 229 004c 00000000 	.LLST5:
+ 230              		.4byte	.LVL4-.Ltext0
+ 231 0050 10000000 		.4byte	.LVL5-.Ltext0
+ 232 0054 20000000 		.2byte	0x1
+ 233 0058 0100     		.byte	0x50
+ 234 005a 50       		.4byte	0x0
+ 235 005b 00000000 		.4byte	0x0
+ 236 005f 00000000 	.LLST6:
+ 237              		.4byte	.LFB2-.Ltext0
+ 238 0063 2C000000 		.4byte	.LCFI3-.Ltext0
+ 239 0067 30000000 		.2byte	0x1
+ 240 006b 0100     		.byte	0x5d
+ 241 006d 5D       		.4byte	.LCFI3-.Ltext0
+ 242 006e 30000000 		.4byte	.LCFI5-.Ltext0
+ 243 0072 38000000 		.2byte	0x1
+ 244 0076 0100     		.byte	0x5c
+ 245 0078 5C       		.4byte	.LCFI5-.Ltext0
+ 246 0079 38000000 		.4byte	.LFE2-.Ltext0
+ 247 007d 48000000 		.2byte	0x2
+ 248 0081 0200     		.byte	0x7b
+ 249 0083 7B       		.sleb128 4
+ 250 0084 04       		.4byte	0x0
+ 251 0085 00000000 		.4byte	0x0
+ 252 0089 00000000 	.LLST7:
+ 253              		.4byte	.LVL6-.Ltext0
+ 254 008d 2C000000 		.4byte	.LVL7-.Ltext0
+ 255 0091 3C000000 		.2byte	0x1
+ 256 0095 0100     		.byte	0x50
+ 257 0097 50       		.4byte	0x0
+ 258 0098 00000000 		.4byte	0x0
+ 259 009c 00000000 		.file 2 "c:\\program files\\codesourcery\\sourcery g++ lite\\bin\\../lib/gcc/arm-none-eabi/4.3.2/i
+ 260              		.section	.debug_info
+ 261              		.4byte	0x158
+ 262 0000 58010000 		.2byte	0x2
+ 263 0004 0200     		.4byte	.Ldebug_abbrev0
+ 264 0006 00000000 		.byte	0x4
+ 265 000a 04       		.uleb128 0x1
+ 266 000b 01       		.4byte	.LASF19
+ 267 000c 27010000 		.byte	0x4
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 6
+
+
+ 268 0010 04       		.4byte	.LASF20
+ 269 0011 2F000000 		.4byte	.LASF21
+ 270 0015 3B000000 		.4byte	.Ltext0
+ 271 0019 00000000 		.4byte	.Letext0
+ 272 001d 48000000 		.4byte	.Ldebug_line0
+ 273 0021 00000000 		.uleb128 0x2
+ 274 0025 02       		.4byte	.LASF22
+ 275 0026 21000000 		.byte	0x2
+ 276 002a 02       		.byte	0xd6
+ 277 002b D6       		.4byte	0x30
+ 278 002c 30000000 		.uleb128 0x3
+ 279 0030 03       		.byte	0x4
+ 280 0031 04       		.byte	0x7
+ 281 0032 07       		.4byte	.LASF0
+ 282 0033 4B010000 		.uleb128 0x3
+ 283 0037 03       		.byte	0x1
+ 284 0038 01       		.byte	0x6
+ 285 0039 06       		.4byte	.LASF1
+ 286 003a 58010000 		.uleb128 0x3
+ 287 003e 03       		.byte	0x1
+ 288 003f 01       		.byte	0x8
+ 289 0040 08       		.4byte	.LASF2
+ 290 0041 D5000000 		.uleb128 0x3
+ 291 0045 03       		.byte	0x2
+ 292 0046 02       		.byte	0x5
+ 293 0047 05       		.4byte	.LASF3
+ 294 0048 41010000 		.uleb128 0x3
+ 295 004c 03       		.byte	0x2
+ 296 004d 02       		.byte	0x7
+ 297 004e 07       		.4byte	.LASF4
+ 298 004f 0E000000 		.uleb128 0x4
+ 299 0053 04       		.byte	0x4
+ 300 0054 04       		.byte	0x5
+ 301 0055 05       		.ascii	"int\000"
+ 302 0056 696E7400 		.uleb128 0x3
+ 303 005a 03       		.byte	0x8
+ 304 005b 08       		.byte	0x5
+ 305 005c 05       		.4byte	.LASF5
+ 306 005d 00000000 		.uleb128 0x3
+ 307 0061 03       		.byte	0x8
+ 308 0062 08       		.byte	0x7
+ 309 0063 07       		.4byte	.LASF6
+ 310 0064 A3000000 		.uleb128 0x3
+ 311 0068 03       		.byte	0x4
+ 312 0069 04       		.byte	0x5
+ 313 006a 05       		.4byte	.LASF7
+ 314 006b F5000000 		.uleb128 0x5
+ 315 006f 05       		.byte	0x4
+ 316 0070 04       		.byte	0x7
+ 317 0071 07       		.uleb128 0x6
+ 318 0072 06       		.byte	0x4
+ 319 0073 04       		.uleb128 0x3
+ 320 0074 03       		.byte	0x4
+ 321 0075 04       		.byte	0x7
+ 322 0076 07       		.4byte	.LASF8
+ 323 0077 91000000 		.uleb128 0x3
+ 324 007b 03       		.byte	0x1
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 7
+
+
+ 325 007c 01       		.byte	0x8
+ 326 007d 08       		.4byte	.LASF9
+ 327 007e E3000000 		.uleb128 0x7
+ 328 0082 07       		.byte	0x1
+ 329 0083 01       		.4byte	.LASF23
+ 330 0084 3B010000 		.byte	0x1
+ 331 0088 01       		.byte	0x7
+ 332 0089 07       		.4byte	.LASF24
+ 333 008a FE000000 		.4byte	0x53
+ 334 008e 53000000 		.4byte	.LFB4
+ 335 0092 00000000 		.4byte	.LFE4
+ 336 0096 08000000 		.byte	0x1
+ 337 009a 01       		.byte	0x5d
+ 338 009b 5D       		.4byte	0xb0
+ 339 009c B0000000 		.uleb128 0x8
+ 340 00a0 08       		.ascii	"sig\000"
+ 341 00a1 73696700 		.byte	0x1
+ 342 00a5 01       		.byte	0x7
+ 343 00a6 07       		.4byte	0x53
+ 344 00a7 53000000 		.4byte	.LLST1
+ 345 00ab 00000000 		.byte	0x0
+ 346 00af 00       		.uleb128 0x9
+ 347 00b0 09       		.byte	0x1
+ 348 00b1 01       		.4byte	.LASF13
+ 349 00b2 08010000 		.byte	0x1
+ 350 00b6 01       		.byte	0xb
+ 351 00b7 0B       		.4byte	0x53
+ 352 00b8 53000000 		.4byte	.LFB5
+ 353 00bc 08000000 		.4byte	.LFE5
+ 354 00c0 10000000 		.byte	0x1
+ 355 00c4 01       		.byte	0x5d
+ 356 00c5 5D       		.4byte	0xf4
+ 357 00c6 F4000000 		.uleb128 0xa
+ 358 00ca 0A       		.4byte	.LASF10
+ 359 00cb 28000000 		.byte	0x1
+ 360 00cf 01       		.byte	0xb
+ 361 00d0 0B       		.4byte	0x72
+ 362 00d1 72000000 		.4byte	.LLST3
+ 363 00d5 13000000 		.uleb128 0xb
+ 364 00d9 0B       		.4byte	.LASF11
+ 365 00da 17010000 		.byte	0x1
+ 366 00de 01       		.byte	0xb
+ 367 00df 0B       		.4byte	0xff
+ 368 00e0 FF000000 		.byte	0x1
+ 369 00e4 01       		.byte	0x51
+ 370 00e5 51       		.uleb128 0xb
+ 371 00e6 0B       		.4byte	.LASF12
+ 372 00e7 BA000000 		.byte	0x1
+ 373 00eb 01       		.byte	0xb
+ 374 00ec 0B       		.4byte	0x72
+ 375 00ed 72000000 		.byte	0x1
+ 376 00f1 01       		.byte	0x52
+ 377 00f2 52       		.byte	0x0
+ 378 00f3 00       		.uleb128 0xc
+ 379 00f4 0C       		.4byte	0xff
+ 380 00f5 FF000000 		.uleb128 0xd
+ 381 00f9 0D       		.4byte	0x72
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 8
+
+
+ 382 00fa 72000000 		.byte	0x0
+ 383 00fe 00       		.uleb128 0xe
+ 384 00ff 0E       		.byte	0x4
+ 385 0100 04       		.4byte	0xf4
+ 386 0101 F4000000 		.uleb128 0xf
+ 387 0105 0F       		.byte	0x1
+ 388 0106 01       		.4byte	.LASF14
+ 389 0107 C5000000 		.byte	0x1
+ 390 010b 01       		.byte	0x5
+ 391 010c 05       		.4byte	.LASF16
+ 392 010d 8A000000 		.4byte	.LFB3
+ 393 0111 10000000 		.4byte	.LFE3
+ 394 0115 2C000000 		.4byte	.LLST4
+ 395 0119 26000000 		.4byte	0x12f
+ 396 011d 2F010000 		.uleb128 0x8
+ 397 0121 08       		.ascii	"p\000"
+ 398 0122 7000     		.byte	0x1
+ 399 0124 01       		.byte	0x5
+ 400 0125 05       		.4byte	0x72
+ 401 0126 72000000 		.4byte	.LLST5
+ 402 012a 50000000 		.byte	0x0
+ 403 012e 00       		.uleb128 0x10
+ 404 012f 10       		.byte	0x1
+ 405 0130 01       		.4byte	.LASF15
+ 406 0131 E8000000 		.byte	0x1
+ 407 0135 01       		.byte	0x3
+ 408 0136 03       		.4byte	.LASF17
+ 409 0137 35010000 		.4byte	0x72
+ 410 013b 72000000 		.4byte	.LFB2
+ 411 013f 2C000000 		.4byte	.LFE2
+ 412 0143 48000000 		.4byte	.LLST6
+ 413 0147 63000000 		.uleb128 0xa
+ 414 014b 0A       		.4byte	.LASF18
+ 415 014c 22010000 		.byte	0x1
+ 416 0150 01       		.byte	0x3
+ 417 0151 03       		.4byte	0x25
+ 418 0152 25000000 		.4byte	.LLST7
+ 419 0156 8D000000 		.byte	0x0
+ 420 015a 00       		.byte	0x0
+ 421 015b 00       		.section	.debug_abbrev
+ 422              		.uleb128 0x1
+ 423 0000 01       		.uleb128 0x11
+ 424 0001 11       		.byte	0x1
+ 425 0002 01       		.uleb128 0x25
+ 426 0003 25       		.uleb128 0xe
+ 427 0004 0E       		.uleb128 0x13
+ 428 0005 13       		.uleb128 0xb
+ 429 0006 0B       		.uleb128 0x3
+ 430 0007 03       		.uleb128 0xe
+ 431 0008 0E       		.uleb128 0x1b
+ 432 0009 1B       		.uleb128 0xe
+ 433 000a 0E       		.uleb128 0x11
+ 434 000b 11       		.uleb128 0x1
+ 435 000c 01       		.uleb128 0x12
+ 436 000d 12       		.uleb128 0x1
+ 437 000e 01       		.uleb128 0x10
+ 438 000f 10       		.uleb128 0x6
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 9
+
+
+ 439 0010 06       		.byte	0x0
+ 440 0011 00       		.byte	0x0
+ 441 0012 00       		.uleb128 0x2
+ 442 0013 02       		.uleb128 0x16
+ 443 0014 16       		.byte	0x0
+ 444 0015 00       		.uleb128 0x3
+ 445 0016 03       		.uleb128 0xe
+ 446 0017 0E       		.uleb128 0x3a
+ 447 0018 3A       		.uleb128 0xb
+ 448 0019 0B       		.uleb128 0x3b
+ 449 001a 3B       		.uleb128 0xb
+ 450 001b 0B       		.uleb128 0x49
+ 451 001c 49       		.uleb128 0x13
+ 452 001d 13       		.byte	0x0
+ 453 001e 00       		.byte	0x0
+ 454 001f 00       		.uleb128 0x3
+ 455 0020 03       		.uleb128 0x24
+ 456 0021 24       		.byte	0x0
+ 457 0022 00       		.uleb128 0xb
+ 458 0023 0B       		.uleb128 0xb
+ 459 0024 0B       		.uleb128 0x3e
+ 460 0025 3E       		.uleb128 0xb
+ 461 0026 0B       		.uleb128 0x3
+ 462 0027 03       		.uleb128 0xe
+ 463 0028 0E       		.byte	0x0
+ 464 0029 00       		.byte	0x0
+ 465 002a 00       		.uleb128 0x4
+ 466 002b 04       		.uleb128 0x24
+ 467 002c 24       		.byte	0x0
+ 468 002d 00       		.uleb128 0xb
+ 469 002e 0B       		.uleb128 0xb
+ 470 002f 0B       		.uleb128 0x3e
+ 471 0030 3E       		.uleb128 0xb
+ 472 0031 0B       		.uleb128 0x3
+ 473 0032 03       		.uleb128 0x8
+ 474 0033 08       		.byte	0x0
+ 475 0034 00       		.byte	0x0
+ 476 0035 00       		.uleb128 0x5
+ 477 0036 05       		.uleb128 0x24
+ 478 0037 24       		.byte	0x0
+ 479 0038 00       		.uleb128 0xb
+ 480 0039 0B       		.uleb128 0xb
+ 481 003a 0B       		.uleb128 0x3e
+ 482 003b 3E       		.uleb128 0xb
+ 483 003c 0B       		.byte	0x0
+ 484 003d 00       		.byte	0x0
+ 485 003e 00       		.uleb128 0x6
+ 486 003f 06       		.uleb128 0xf
+ 487 0040 0F       		.byte	0x0
+ 488 0041 00       		.uleb128 0xb
+ 489 0042 0B       		.uleb128 0xb
+ 490 0043 0B       		.byte	0x0
+ 491 0044 00       		.byte	0x0
+ 492 0045 00       		.uleb128 0x7
+ 493 0046 07       		.uleb128 0x2e
+ 494 0047 2E       		.byte	0x1
+ 495 0048 01       		.uleb128 0x3f
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 10
+
+
+ 496 0049 3F       		.uleb128 0xc
+ 497 004a 0C       		.uleb128 0x3
+ 498 004b 03       		.uleb128 0xe
+ 499 004c 0E       		.uleb128 0x3a
+ 500 004d 3A       		.uleb128 0xb
+ 501 004e 0B       		.uleb128 0x3b
+ 502 004f 3B       		.uleb128 0xb
+ 503 0050 0B       		.uleb128 0x2007
+ 504 0051 8740     		.uleb128 0xe
+ 505 0053 0E       		.uleb128 0x49
+ 506 0054 49       		.uleb128 0x13
+ 507 0055 13       		.uleb128 0x11
+ 508 0056 11       		.uleb128 0x1
+ 509 0057 01       		.uleb128 0x12
+ 510 0058 12       		.uleb128 0x1
+ 511 0059 01       		.uleb128 0x40
+ 512 005a 40       		.uleb128 0xa
+ 513 005b 0A       		.uleb128 0x1
+ 514 005c 01       		.uleb128 0x13
+ 515 005d 13       		.byte	0x0
+ 516 005e 00       		.byte	0x0
+ 517 005f 00       		.uleb128 0x8
+ 518 0060 08       		.uleb128 0x5
+ 519 0061 05       		.byte	0x0
+ 520 0062 00       		.uleb128 0x3
+ 521 0063 03       		.uleb128 0x8
+ 522 0064 08       		.uleb128 0x3a
+ 523 0065 3A       		.uleb128 0xb
+ 524 0066 0B       		.uleb128 0x3b
+ 525 0067 3B       		.uleb128 0xb
+ 526 0068 0B       		.uleb128 0x49
+ 527 0069 49       		.uleb128 0x13
+ 528 006a 13       		.uleb128 0x2
+ 529 006b 02       		.uleb128 0x6
+ 530 006c 06       		.byte	0x0
+ 531 006d 00       		.byte	0x0
+ 532 006e 00       		.uleb128 0x9
+ 533 006f 09       		.uleb128 0x2e
+ 534 0070 2E       		.byte	0x1
+ 535 0071 01       		.uleb128 0x3f
+ 536 0072 3F       		.uleb128 0xc
+ 537 0073 0C       		.uleb128 0x3
+ 538 0074 03       		.uleb128 0xe
+ 539 0075 0E       		.uleb128 0x3a
+ 540 0076 3A       		.uleb128 0xb
+ 541 0077 0B       		.uleb128 0x3b
+ 542 0078 3B       		.uleb128 0xb
+ 543 0079 0B       		.uleb128 0x49
+ 544 007a 49       		.uleb128 0x13
+ 545 007b 13       		.uleb128 0x11
+ 546 007c 11       		.uleb128 0x1
+ 547 007d 01       		.uleb128 0x12
+ 548 007e 12       		.uleb128 0x1
+ 549 007f 01       		.uleb128 0x40
+ 550 0080 40       		.uleb128 0xa
+ 551 0081 0A       		.uleb128 0x1
+ 552 0082 01       		.uleb128 0x13
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 11
+
+
+ 553 0083 13       		.byte	0x0
+ 554 0084 00       		.byte	0x0
+ 555 0085 00       		.uleb128 0xa
+ 556 0086 0A       		.uleb128 0x5
+ 557 0087 05       		.byte	0x0
+ 558 0088 00       		.uleb128 0x3
+ 559 0089 03       		.uleb128 0xe
+ 560 008a 0E       		.uleb128 0x3a
+ 561 008b 3A       		.uleb128 0xb
+ 562 008c 0B       		.uleb128 0x3b
+ 563 008d 3B       		.uleb128 0xb
+ 564 008e 0B       		.uleb128 0x49
+ 565 008f 49       		.uleb128 0x13
+ 566 0090 13       		.uleb128 0x2
+ 567 0091 02       		.uleb128 0x6
+ 568 0092 06       		.byte	0x0
+ 569 0093 00       		.byte	0x0
+ 570 0094 00       		.uleb128 0xb
+ 571 0095 0B       		.uleb128 0x5
+ 572 0096 05       		.byte	0x0
+ 573 0097 00       		.uleb128 0x3
+ 574 0098 03       		.uleb128 0xe
+ 575 0099 0E       		.uleb128 0x3a
+ 576 009a 3A       		.uleb128 0xb
+ 577 009b 0B       		.uleb128 0x3b
+ 578 009c 3B       		.uleb128 0xb
+ 579 009d 0B       		.uleb128 0x49
+ 580 009e 49       		.uleb128 0x13
+ 581 009f 13       		.uleb128 0x2
+ 582 00a0 02       		.uleb128 0xa
+ 583 00a1 0A       		.byte	0x0
+ 584 00a2 00       		.byte	0x0
+ 585 00a3 00       		.uleb128 0xc
+ 586 00a4 0C       		.uleb128 0x15
+ 587 00a5 15       		.byte	0x1
+ 588 00a6 01       		.uleb128 0x1
+ 589 00a7 01       		.uleb128 0x13
+ 590 00a8 13       		.byte	0x0
+ 591 00a9 00       		.byte	0x0
+ 592 00aa 00       		.uleb128 0xd
+ 593 00ab 0D       		.uleb128 0x5
+ 594 00ac 05       		.byte	0x0
+ 595 00ad 00       		.uleb128 0x49
+ 596 00ae 49       		.uleb128 0x13
+ 597 00af 13       		.byte	0x0
+ 598 00b0 00       		.byte	0x0
+ 599 00b1 00       		.uleb128 0xe
+ 600 00b2 0E       		.uleb128 0xf
+ 601 00b3 0F       		.byte	0x0
+ 602 00b4 00       		.uleb128 0xb
+ 603 00b5 0B       		.uleb128 0xb
+ 604 00b6 0B       		.uleb128 0x49
+ 605 00b7 49       		.uleb128 0x13
+ 606 00b8 13       		.byte	0x0
+ 607 00b9 00       		.byte	0x0
+ 608 00ba 00       		.uleb128 0xf
+ 609 00bb 0F       		.uleb128 0x2e
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 12
+
+
+ 610 00bc 2E       		.byte	0x1
+ 611 00bd 01       		.uleb128 0x3f
+ 612 00be 3F       		.uleb128 0xc
+ 613 00bf 0C       		.uleb128 0x3
+ 614 00c0 03       		.uleb128 0xe
+ 615 00c1 0E       		.uleb128 0x3a
+ 616 00c2 3A       		.uleb128 0xb
+ 617 00c3 0B       		.uleb128 0x3b
+ 618 00c4 3B       		.uleb128 0xb
+ 619 00c5 0B       		.uleb128 0x2007
+ 620 00c6 8740     		.uleb128 0xe
+ 621 00c8 0E       		.uleb128 0x11
+ 622 00c9 11       		.uleb128 0x1
+ 623 00ca 01       		.uleb128 0x12
+ 624 00cb 12       		.uleb128 0x1
+ 625 00cc 01       		.uleb128 0x40
+ 626 00cd 40       		.uleb128 0x6
+ 627 00ce 06       		.uleb128 0x1
+ 628 00cf 01       		.uleb128 0x13
+ 629 00d0 13       		.byte	0x0
+ 630 00d1 00       		.byte	0x0
+ 631 00d2 00       		.uleb128 0x10
+ 632 00d3 10       		.uleb128 0x2e
+ 633 00d4 2E       		.byte	0x1
+ 634 00d5 01       		.uleb128 0x3f
+ 635 00d6 3F       		.uleb128 0xc
+ 636 00d7 0C       		.uleb128 0x3
+ 637 00d8 03       		.uleb128 0xe
+ 638 00d9 0E       		.uleb128 0x3a
+ 639 00da 3A       		.uleb128 0xb
+ 640 00db 0B       		.uleb128 0x3b
+ 641 00dc 3B       		.uleb128 0xb
+ 642 00dd 0B       		.uleb128 0x2007
+ 643 00de 8740     		.uleb128 0xe
+ 644 00e0 0E       		.uleb128 0x49
+ 645 00e1 49       		.uleb128 0x13
+ 646 00e2 13       		.uleb128 0x11
+ 647 00e3 11       		.uleb128 0x1
+ 648 00e4 01       		.uleb128 0x12
+ 649 00e5 12       		.uleb128 0x1
+ 650 00e6 01       		.uleb128 0x40
+ 651 00e7 40       		.uleb128 0x6
+ 652 00e8 06       		.byte	0x0
+ 653 00e9 00       		.byte	0x0
+ 654 00ea 00       		.byte	0x0
+ 655 00eb 00       		.section	.debug_pubnames,"",%progbits
+ 656              		.4byte	0x50
+ 657 0000 50000000 		.2byte	0x2
+ 658 0004 0200     		.4byte	.Ldebug_info0
+ 659 0006 00000000 		.4byte	0x15c
+ 660 000a 5C010000 		.4byte	0x82
+ 661 000e 82000000 		.ascii	"raise\000"
+ 662 0012 72616973 		.4byte	0xb0
+ 662      6500
+ 663 0018 B0000000 		.ascii	"__aeabi_atexit\000"
+ 664 001c 5F5F6165 		.4byte	0x105
+ 664      6162695F 
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 13
+
+
+ 664      61746578 
+ 664      697400
+ 665 002b 05010000 		.ascii	"operator delete\000"
+ 666 002f 6F706572 		.4byte	0x12f
+ 666      61746F72 
+ 666      2064656C 
+ 666      65746500 
+ 667 003f 2F010000 		.ascii	"operator new\000"
+ 668 0043 6F706572 		.4byte	0x0
+ 668      61746F72 
+ 668      206E6577 
+ 668      00
+ 669 0050 00000000 		.section	.debug_aranges,"",%progbits
+ 670              		.4byte	0x1c
+ 671 0000 1C000000 		.2byte	0x2
+ 672 0004 0200     		.4byte	.Ldebug_info0
+ 673 0006 00000000 		.byte	0x4
+ 674 000a 04       		.byte	0x0
+ 675 000b 00       		.2byte	0x0
+ 676 000c 0000     		.2byte	0x0
+ 677 000e 0000     		.4byte	.Ltext0
+ 678 0010 00000000 		.4byte	.Letext0-.Ltext0
+ 679 0014 48000000 		.4byte	0x0
+ 680 0018 00000000 		.4byte	0x0
+ 681 001c 00000000 		.section	.debug_str,"MS",%progbits,1
+ 682              	.LASF5:
+ 683              		.ascii	"long long int\000"
+ 684 0000 6C6F6E67 	.LASF4:
+ 684      206C6F6E 
+ 684      6720696E 
+ 684      7400
+ 685              		.ascii	"short unsigned int\000"
+ 686 000e 73686F72 	.LASF22:
+ 686      7420756E 
+ 686      7369676E 
+ 686      65642069 
+ 686      6E7400
+ 687              		.ascii	"size_t\000"
+ 688 0021 73697A65 	.LASF10:
+ 688      5F7400
+ 689              		.ascii	"object\000"
+ 690 0028 6F626A65 	.LASF20:
+ 690      637400
+ 691              		.ascii	"nothrow.cpp\000"
+ 692 002f 6E6F7468 	.LASF21:
+ 692      726F772E 
+ 692      63707000 
+ 693              		.ascii	"C:\\Users\\Chris\\Desktop\\antipasto_java\\antipast"
+ 694 003b 433A5C55 		.ascii	"o_arduino\\hardware\\cores\\sfboard\000"
+ 694      73657273 
+ 694      5C436872 
+ 694      69735C44 
+ 694      65736B74 
+ 695 0069 6F5F6172 	.LASF16:
+ 695      6475696E 
+ 695      6F5C6861 
+ 695      72647761 
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 14
+
+
+ 695      72655C63 
+ 696              		.ascii	"_ZdlPv\000"
+ 697 008a 5F5A646C 	.LASF8:
+ 697      507600
+ 698              		.ascii	"long unsigned int\000"
+ 699 0091 6C6F6E67 	.LASF6:
+ 699      20756E73 
+ 699      69676E65 
+ 699      6420696E 
+ 699      7400
+ 700              		.ascii	"long long unsigned int\000"
+ 701 00a3 6C6F6E67 	.LASF12:
+ 701      206C6F6E 
+ 701      6720756E 
+ 701      7369676E 
+ 701      65642069 
+ 702              		.ascii	"dso_handle\000"
+ 703 00ba 64736F5F 	.LASF14:
+ 703      68616E64 
+ 703      6C6500
+ 704              		.ascii	"operator delete\000"
+ 705 00c5 6F706572 	.LASF2:
+ 705      61746F72 
+ 705      2064656C 
+ 705      65746500 
+ 706              		.ascii	"unsigned char\000"
+ 707 00d5 756E7369 	.LASF9:
+ 707      676E6564 
+ 707      20636861 
+ 707      7200
+ 708              		.ascii	"char\000"
+ 709 00e3 63686172 	.LASF15:
+ 709      00
+ 710              		.ascii	"operator new\000"
+ 711 00e8 6F706572 	.LASF7:
+ 711      61746F72 
+ 711      206E6577 
+ 711      00
+ 712              		.ascii	"long int\000"
+ 713 00f5 6C6F6E67 	.LASF24:
+ 713      20696E74 
+ 713      00
+ 714              		.ascii	"_Z5raisei\000"
+ 715 00fe 5F5A3572 	.LASF13:
+ 715      61697365 
+ 715      6900
+ 716              		.ascii	"__aeabi_atexit\000"
+ 717 0108 5F5F6165 	.LASF11:
+ 717      6162695F 
+ 717      61746578 
+ 717      697400
+ 718              		.ascii	"destructor\000"
+ 719 0117 64657374 	.LASF18:
+ 719      72756374 
+ 719      6F7200
+ 720              		.ascii	"size\000"
+ 721 0122 73697A65 	.LASF19:
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 15
+
+
+ 721      00
+ 722              		.ascii	"GNU C++ 4.3.2\000"
+ 723 0127 474E5520 	.LASF17:
+ 723      432B2B20 
+ 723      342E332E 
+ 723      3200
+ 724              		.ascii	"_Znwj\000"
+ 725 0135 5F5A6E77 	.LASF23:
+ 725      6A00
+ 726              		.ascii	"raise\000"
+ 727 013b 72616973 	.LASF3:
+ 727      6500
+ 728              		.ascii	"short int\000"
+ 729 0141 73686F72 	.LASF0:
+ 729      7420696E 
+ 729      7400
+ 730              		.ascii	"unsigned int\000"
+ 731 014b 756E7369 	.LASF1:
+ 731      676E6564 
+ 731      20696E74 
+ 731      00
+ 732              		.ascii	"signed char\000"
+ 733 0158 7369676E 		.ident	"GCC: (Sourcery G++ Lite 2008q3-39) 4.3.2"
+ 733      65642063 
+ 733      68617200 
+ 734              	...
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s 			page 16
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 nothrow.cpp
+C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s:23     .text:00000000 _Z5raisei
+C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s:34     .text:00000000 $a
+C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s:44     .text:00000008 __aeabi_atexit
+C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s:54     .text:00000008 $a
+C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s:64     .text:00000010 _ZdlPv
+C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s:72     .text:00000010 $a
+C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s:91     .text:0000002c _Znwj
+C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s:99     .text:0000002c $a
+C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s:117    .debug_frame:00000000 $d
+C:\Users\Chris\AppData\Local\Temp/ccgvbaaa.s:201    .debug_loc:00000000 $d
+
+UNDEFINED SYMBOLS
+free
+malloc

@@ -1,0 +1,754 @@
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 1
+
+
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 18, 4
+  11              		.file	"irq.cpp"
+  12              		.section	.debug_abbrev,"",%progbits
+  13              	.Ldebug_abbrev0:
+  14              		.section	.debug_info,"",%progbits
+  15              	.Ldebug_info0:
+  16              		.section	.debug_line,"",%progbits
+  17              	.Ldebug_line0:
+  18 0000 5D000000 		.text
+  18      02002800 
+  18      00000201 
+  18      FB0E0D00 
+  18      01010101 
+  19              	.Ltext0:
+  20              		.align	2
+  21              		.global	_Z8init_VICv
+  22              		.type	_Z8init_VICv, %function
+  23              	_Z8init_VICv:
+  24              		.fnstart
+  25              	.LFB2:
+  26              		.file 1 "irq.cpp"
+   1:irq.cpp       **** /*****************************************************************************
+   2:irq.cpp       ****  *   irq.c: Interrupt handler C file for NXP LPC23xx/24xx Family Microprocessors
+   3:irq.cpp       ****  *
+   4:irq.cpp       ****  *   Copyright(C) 2006, NXP Semiconductor
+   5:irq.cpp       ****  *   All rights reserved.
+   6:irq.cpp       ****  *
+   7:irq.cpp       ****  *   History
+   8:irq.cpp       ****  *   2006.07.13  ver 1.00    Prelimnary version, first Release
+   9:irq.cpp       ****  *
+  10:irq.cpp       ****  ******************************************************************************/ 
+  11:irq.cpp       **** 
+  12:irq.cpp       **** /* TODO mthomas - volatiles for vect_addr, vect_cntl? */
+  13:irq.cpp       **** 
+  14:irq.cpp       **** #include "LPC23xx.h"			/* LPC23XX/24xx Peripheral Registers */
+  15:irq.cpp       **** #include "type.h"
+  16:irq.cpp       **** #include "irq.h"
+  17:irq.cpp       **** 
+  18:irq.cpp       **** /* Initialize the interrupt controller */
+  19:irq.cpp       **** /******************************************************************************
+  20:irq.cpp       **** ** Function name:		init_VIC
+  21:irq.cpp       **** **
+  22:irq.cpp       **** ** Descriptions:		Initialize VIC interrupt controller.
+  23:irq.cpp       **** ** parameters:			None
+  24:irq.cpp       **** ** Returned value:		None
+  25:irq.cpp       **** ** 
+  26:irq.cpp       **** ******************************************************************************/
+  27:irq.cpp       **** void init_VIC(void) 
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 2
+
+
+  27              	upports interworking.
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LBB2:
+  32              		.loc 1 33 0
+  28:irq.cpp       **** {
+  29:irq.cpp       ****     DWORD i = 0;
+  30:irq.cpp       ****     DWORD *vect_addr, *vect_cntl;
+  31:irq.cpp       ****    	
+  32:irq.cpp       ****     /* initialize VIC*/
+  33:irq.cpp       ****     VICIntEnClr = 0xffffffff;
+  33              	3, #0
+  34 0000 0030E0E3 		.loc 1 34 0
+  34:irq.cpp       ****     VICVectAddr = 0;
+  35              	ov	r2, #0
+  36 0004 0020A0E3 		.loc 1 33 0
+  37              		str	r3, [r3, #-4075]
+  38 0008 EB3F03E5 		.loc 1 34 0
+  39              		str	r2, [r3, #-255]
+  40 000c FF2003E5 		.loc 1 35 0
+  35:irq.cpp       ****     VICIntSelect = 0;
+  41              	2, [r3, #-4083]
+  42 0010 F32F03E5 		add	r3, r3, #-2013265919
+  43 0014 623383E2 		mov	r3, r3, asr #19
+  44 0018 C339A0E1 		.loc 1 43 0
+  36:irq.cpp       **** 
+  37:irq.cpp       ****     /* set all the vector and vector control register to 0 */
+  38:irq.cpp       ****     for ( i = 0; i < VIC_SIZE; i++ )
+  39:irq.cpp       ****     {
+  40:irq.cpp       **** 		vect_addr = (DWORD *)(VIC_BASE_ADDR + VECT_ADDR_INDEX + i*4);
+  41:irq.cpp       **** 		vect_cntl = (DWORD *)(VIC_BASE_ADDR + VECT_CNTL_INDEX + i*4);
+  42:irq.cpp       **** 		*vect_addr = 0x0;	
+  43:irq.cpp       **** 		*vect_cntl = 0xF;
+  45              		r1, #15
+  46 001c 0F10A0E3 	.L2:
+  47              		.loc 1 42 0
+  48              		str	r2, [r3, #0]
+  49 0020 002083E5 		.loc 1 43 0
+  50              		str	r1, [r3, #256]
+  51 0024 001183E5 		add	r3, r3, #4
+  52 0028 043083E2 		.loc 1 38 0
+  53              		cmn	r3, #3712
+  54 002c 3A0D73E3 		bne	.L2
+  55 0030 FAFFFF1A 	.LBE2:
+  56              		.loc 1 46 0
+  44:irq.cpp       ****     }
+  45:irq.cpp       ****     return;
+  46:irq.cpp       **** }
+  57              	:
+  58 0034 1EFF2FE1 		.cantunwind
+  59              		.fnend
+  60              		.size	_Z8init_VICv, .-_Z8init_VICv
+  61              		.align	2
+  62              		.global	_Z11install_irqmPvm
+  63              		.type	_Z11install_irqmPvm, %function
+  64              	_Z11install_irqmPvm:
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 3
+
+
+  65              		.fnstart
+  66              	.LFB3:
+  67              		.loc 1 57 0
+  68              		@ Function supports interworking.
+  47:irq.cpp       **** 
+  48:irq.cpp       **** /******************************************************************************
+  49:irq.cpp       **** ** Function name:		install_irq
+  50:irq.cpp       **** **
+  51:irq.cpp       **** ** Descriptions:		Install interrupt handler
+  52:irq.cpp       **** ** parameters:			Interrupt number, interrupt handler address, 
+  53:irq.cpp       **** **						interrupt priority
+  54:irq.cpp       **** ** Returned value:		true or false, return false if IntNum is out of range
+  55:irq.cpp       **** ** 
+  56:irq.cpp       **** ******************************************************************************/
+  57:irq.cpp       **** DWORD install_irq( DWORD IntNumber, void *HandlerAddr, DWORD Priority )
+  69              	 pretend = 0, frame = 0
+  70              		@ frame_needed = 0, uses_anonymous_args = 0
+  71              		@ link register save eliminated.
+  72              	.LVL0:
+  73              		stmfd	sp!, {r4, r5, r6}
+  74              	.LCFI0:
+  75 0038 70002DE9 	.LBB3:
+  76              		.loc 1 62 0
+  77              		mov	r6, #1
+  58:irq.cpp       **** {
+  59:irq.cpp       ****     DWORD *vect_addr;
+  60:irq.cpp       ****     DWORD *vect_cntl;
+  61:irq.cpp       ****       
+  62:irq.cpp       ****     VICIntEnClr = 1 << IntNumber;	/* Disable Interrupt */
+  78              	r6, asl r0
+  79 003c 0160A0E3 		.loc 1 63 0
+  80 0040 1640A0E1 		cmp	r0, #31
+  63:irq.cpp       ****     if ( IntNumber >= VIC_SIZE )
+  81              	oc 1 62 0
+  82 0044 1F0050E3 		mvn	r5, #0
+  83              	.LBE3:
+  84 0048 0050E0E3 		.loc 1 57 0
+  85              		mov	ip, r2
+  86              	.LBB4:
+  87 004c 02C0A0E1 		.loc 1 72 0
+  88              		movls	r3, r0, asl #2
+  64:irq.cpp       ****     {
+  65:irq.cpp       **** 		return ( FALSE );
+  66:irq.cpp       ****     }
+  67:irq.cpp       ****     else
+  68:irq.cpp       ****     {
+  69:irq.cpp       **** 		/* find first un-assigned VIC address for the handler */
+  70:irq.cpp       **** 		vect_addr = (DWORD *)(VIC_BASE_ADDR + VECT_ADDR_INDEX + IntNumber*4);
+  71:irq.cpp       **** 		vect_cntl = (DWORD *)(VIC_BASE_ADDR + VECT_CNTL_INDEX + IntNumber*4);
+  72:irq.cpp       **** 		*vect_addr = (DWORD)HandlerAddr;	/* set interrupt vector */
+  89              	73 0
+  90 0050 0031A091 		movls	r2, r0, asl #2
+  73:irq.cpp       **** 		*vect_cntl = Priority;
+  91              	VL1:
+  92 0054 0021A091 		.loc 1 62 0
+  93              		str	r4, [r5, #-4075]
+  94              		.loc 1 63 0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 4
+
+
+  95 0058 EB4F05E5 		movhi	r0, #0
+  96              	.LVL2:
+  97 005c 0000A083 		.loc 1 72 0
+  98              		strls	r1, [r3, #-3840]
+  99              		.loc 1 74 0
+ 100 0060 001F0395 		movls	r0, r6
+  74:irq.cpp       **** 		VICIntEnable = 1 << IntNumber;	/* Enable Interrupt */
+ 101              	 0
+ 102 0064 0600A091 		strls	ip, [r2, #-3584]
+ 103              		.loc 1 74 0
+ 104 0068 00CE0295 		strls	r4, [r5, #-4079]
+ 105              	.LBE4:
+ 106 006c EF4F0595 		.loc 1 77 0
+ 107              		ldmfd	sp!, {r4, r5, r6}
+  75:irq.cpp       **** 		return( TRUE );
+  76:irq.cpp       ****     }
+  77:irq.cpp       **** }
+ 108              	.LFE3:
+ 109 0070 7000BDE8 		.cantunwind
+ 110 0074 1EFF2FE1 		.fnend
+ 111              		.size	_Z11install_irqmPvm, .-_Z11install_irqmPvm
+ 112              		.section	.debug_frame,"",%progbits
+ 113              	.Lframe0:
+ 114              		.4byte	.LECIE0-.LSCIE0
+ 115              	.LSCIE0:
+ 116              		.4byte	0xffffffff
+ 117 0000 0C000000 		.byte	0x1
+ 118              		.ascii	"\000"
+ 119 0004 FFFFFFFF 		.uleb128 0x1
+ 120 0008 01       		.sleb128 -4
+ 121 0009 00       		.byte	0xe
+ 122 000a 01       		.byte	0xc
+ 123 000b 7C       		.uleb128 0xd
+ 124 000c 0E       		.uleb128 0x0
+ 125 000d 0C       		.align	2
+ 126 000e 0D       	.LECIE0:
+ 127 000f 00       	.LSFDE0:
+ 128              		.4byte	.LEFDE0-.LASFDE0
+ 129              	.LASFDE0:
+ 130              		.4byte	.Lframe0
+ 131 0010 0C000000 		.4byte	.LFB2
+ 132              		.4byte	.LFE2-.LFB2
+ 133 0014 00000000 		.align	2
+ 134 0018 00000000 	.LEFDE0:
+ 135 001c 38000000 	.LSFDE2:
+ 136              		.4byte	.LEFDE2-.LASFDE2
+ 137              	.LASFDE2:
+ 138              		.4byte	.Lframe0
+ 139 0020 18000000 		.4byte	.LFB3
+ 140              		.4byte	.LFE3-.LFB3
+ 141 0024 00000000 		.byte	0x4
+ 142 0028 38000000 		.4byte	.LCFI0-.LFB3
+ 143 002c 40000000 		.byte	0xe
+ 144 0030 44       		.uleb128 0xc
+ 145              		.byte	0x86
+ 146 0031 0E       		.uleb128 0x1
+ 147 0032 0C       		.byte	0x85
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 5
+
+
+ 148 0033 86       		.uleb128 0x2
+ 149 0034 01       		.byte	0x84
+ 150 0035 85       		.uleb128 0x3
+ 151 0036 02       		.align	2
+ 152 0037 84       	.LEFDE2:
+ 153 0038 03       		.text
+ 154 0039 000000   	.Letext0:
+ 155              		.section	.debug_loc,"",%progbits
+ 156              	.Ldebug_loc0:
+ 157              	.LLST1:
+ 158              		.4byte	.LFB3-.Ltext0
+ 159              		.4byte	.LCFI0-.Ltext0
+ 160              		.2byte	0x1
+ 161 0000 38000000 		.byte	0x5d
+ 162 0004 3C000000 		.4byte	.LCFI0-.Ltext0
+ 163 0008 0100     		.4byte	.LFE3-.Ltext0
+ 164 000a 5D       		.2byte	0x2
+ 165 000b 3C000000 		.byte	0x7d
+ 166 000f 78000000 		.sleb128 12
+ 167 0013 0200     		.4byte	0x0
+ 168 0015 7D       		.4byte	0x0
+ 169 0016 0C       	.LLST2:
+ 170 0017 00000000 		.4byte	.LVL0-.Ltext0
+ 171 001b 00000000 		.4byte	.LVL2-.Ltext0
+ 172              		.2byte	0x1
+ 173 001f 38000000 		.byte	0x50
+ 174 0023 60000000 		.4byte	0x0
+ 175 0027 0100     		.4byte	0x0
+ 176 0029 50       	.LLST3:
+ 177 002a 00000000 		.4byte	.LVL0-.Ltext0
+ 178 002e 00000000 		.4byte	.LVL1-.Ltext0
+ 179              		.2byte	0x1
+ 180 0032 38000000 		.byte	0x52
+ 181 0036 58000000 		.4byte	.LVL1-.Ltext0
+ 182 003a 0100     		.4byte	.LFE3-.Ltext0
+ 183 003c 52       		.2byte	0x1
+ 184 003d 58000000 		.byte	0x5c
+ 185 0041 78000000 		.4byte	0x0
+ 186 0045 0100     		.4byte	0x0
+ 187 0047 5C       		.file 2 "type.h"
+ 188 0048 00000000 		.section	.debug_info
+ 189 004c 00000000 		.4byte	0x110
+ 190              		.2byte	0x2
+ 191              		.4byte	.Ldebug_abbrev0
+ 192 0000 10010000 		.byte	0x4
+ 193 0004 0200     		.uleb128 0x1
+ 194 0006 00000000 		.4byte	.LASF13
+ 195 000a 04       		.byte	0x4
+ 196 000b 01       		.4byte	.LASF14
+ 197 000c 11010000 		.4byte	.LASF15
+ 198 0010 04       		.4byte	.Ltext0
+ 199 0011 47010000 		.4byte	.Letext0
+ 200 0015 3D000000 		.4byte	.Ldebug_line0
+ 201 0019 00000000 		.uleb128 0x2
+ 202 001d 78000000 		.byte	0x1
+ 203 0021 00000000 		.byte	0x8
+ 204 0025 02       		.4byte	.LASF0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 6
+
+
+ 205 0026 01       		.uleb128 0x2
+ 206 0027 08       		.byte	0x2
+ 207 0028 C8000000 		.byte	0x7
+ 208 002c 02       		.4byte	.LASF1
+ 209 002d 02       		.uleb128 0x3
+ 210 002e 07       		.4byte	.LASF16
+ 211 002f F2000000 		.byte	0x2
+ 212 0033 03       		.byte	0x13
+ 213 0034 9E000000 		.4byte	0x3e
+ 214 0038 02       		.uleb128 0x2
+ 215 0039 13       		.byte	0x4
+ 216 003a 3E000000 		.byte	0x7
+ 217 003e 02       		.4byte	.LASF2
+ 218 003f 04       		.uleb128 0x2
+ 219 0040 07       		.byte	0x4
+ 220 0041 8C000000 		.byte	0x7
+ 221 0045 02       		.4byte	.LASF3
+ 222 0046 04       		.uleb128 0x2
+ 223 0047 07       		.byte	0x1
+ 224 0048 0E000000 		.byte	0x6
+ 225 004c 02       		.4byte	.LASF4
+ 226 004d 01       		.uleb128 0x2
+ 227 004e 06       		.byte	0x2
+ 228 004f 05010000 		.byte	0x5
+ 229 0053 02       		.4byte	.LASF5
+ 230 0054 02       		.uleb128 0x4
+ 231 0055 05       		.byte	0x4
+ 232 0056 1F010000 		.byte	0x5
+ 233 005a 04       		.ascii	"int\000"
+ 234 005b 04       		.uleb128 0x2
+ 235 005c 05       		.byte	0x8
+ 236 005d 696E7400 		.byte	0x5
+ 237 0061 02       		.4byte	.LASF6
+ 238 0062 08       		.uleb128 0x2
+ 239 0063 05       		.byte	0x8
+ 240 0064 00000000 		.byte	0x7
+ 241 0068 02       		.4byte	.LASF7
+ 242 0069 08       		.uleb128 0x5
+ 243 006a 07       		.byte	0x1
+ 244 006b A4000000 		.4byte	.LASF17
+ 245 006f 05       		.byte	0x1
+ 246 0070 01       		.byte	0x1b
+ 247 0071 D6000000 		.4byte	.LASF18
+ 248 0075 01       		.4byte	.LFB2
+ 249 0076 1B       		.4byte	.LFE2
+ 250 0077 BB000000 		.byte	0x1
+ 251 007b 00000000 		.byte	0x5d
+ 252 007f 38000000 		.4byte	0xa9
+ 253 0083 01       		.uleb128 0x6
+ 254 0084 5D       		.ascii	"i\000"
+ 255 0085 A9000000 		.byte	0x1
+ 256 0089 06       		.byte	0x1d
+ 257 008a 6900     		.4byte	0x33
+ 258 008c 01       		.uleb128 0x7
+ 259 008d 1D       		.4byte	.LASF8
+ 260 008e 33000000 		.byte	0x1
+ 261 0092 07       		.byte	0x1e
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 7
+
+
+ 262 0093 33000000 		.4byte	0xa9
+ 263 0097 01       		.uleb128 0x7
+ 264 0098 1E       		.4byte	.LASF9
+ 265 0099 A9000000 		.byte	0x1
+ 266 009d 07       		.byte	0x1e
+ 267 009e E8000000 		.4byte	0xa9
+ 268 00a2 01       		.byte	0x0
+ 269 00a3 1E       		.uleb128 0x8
+ 270 00a4 A9000000 		.byte	0x4
+ 271 00a8 00       		.4byte	0x33
+ 272 00a9 08       		.uleb128 0x9
+ 273 00aa 04       		.byte	0x1
+ 274 00ab 33000000 		.4byte	.LASF19
+ 275 00af 09       		.byte	0x1
+ 276 00b0 01       		.byte	0x39
+ 277 00b1 1B000000 		.4byte	.LASF20
+ 278 00b5 01       		.4byte	0x33
+ 279 00b6 39       		.4byte	.LFB3
+ 280 00b7 29010000 		.4byte	.LFE3
+ 281 00bb 33000000 		.4byte	.LLST1
+ 282 00bf 38000000 		.4byte	0x111
+ 283 00c3 78000000 		.uleb128 0xa
+ 284 00c7 00000000 		.4byte	.LASF10
+ 285 00cb 11010000 		.byte	0x1
+ 286 00cf 0A       		.byte	0x39
+ 287 00d0 3D010000 		.4byte	0x33
+ 288 00d4 01       		.4byte	.LLST2
+ 289 00d5 39       		.uleb128 0xb
+ 290 00d6 33000000 		.4byte	.LASF11
+ 291 00da 1F000000 		.byte	0x1
+ 292 00de 0B       		.byte	0x39
+ 293 00df 27000000 		.4byte	0x111
+ 294 00e3 01       		.byte	0x1
+ 295 00e4 39       		.byte	0x51
+ 296 00e5 11010000 		.uleb128 0xa
+ 297 00e9 01       		.4byte	.LASF12
+ 298 00ea 51       		.byte	0x1
+ 299 00eb 0A       		.byte	0x39
+ 300 00ec DF000000 		.4byte	0x33
+ 301 00f0 01       		.4byte	.LLST3
+ 302 00f1 39       		.uleb128 0x7
+ 303 00f2 33000000 		.4byte	.LASF8
+ 304 00f6 32000000 		.byte	0x1
+ 305 00fa 07       		.byte	0x3b
+ 306 00fb 33000000 		.4byte	0xa9
+ 307 00ff 01       		.uleb128 0x7
+ 308 0100 3B       		.4byte	.LASF9
+ 309 0101 A9000000 		.byte	0x1
+ 310 0105 07       		.byte	0x3c
+ 311 0106 E8000000 		.4byte	0xa9
+ 312 010a 01       		.byte	0x0
+ 313 010b 3C       		.uleb128 0xc
+ 314 010c A9000000 		.byte	0x4
+ 315 0110 00       		.byte	0x0
+ 316 0111 0C       		.section	.debug_abbrev
+ 317 0112 04       		.uleb128 0x1
+ 318 0113 00       		.uleb128 0x11
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 8
+
+
+ 319              		.byte	0x1
+ 320 0000 01       		.uleb128 0x25
+ 321 0001 11       		.uleb128 0xe
+ 322 0002 01       		.uleb128 0x13
+ 323 0003 25       		.uleb128 0xb
+ 324 0004 0E       		.uleb128 0x3
+ 325 0005 13       		.uleb128 0xe
+ 326 0006 0B       		.uleb128 0x1b
+ 327 0007 03       		.uleb128 0xe
+ 328 0008 0E       		.uleb128 0x11
+ 329 0009 1B       		.uleb128 0x1
+ 330 000a 0E       		.uleb128 0x12
+ 331 000b 11       		.uleb128 0x1
+ 332 000c 01       		.uleb128 0x10
+ 333 000d 12       		.uleb128 0x6
+ 334 000e 01       		.byte	0x0
+ 335 000f 10       		.byte	0x0
+ 336 0010 06       		.uleb128 0x2
+ 337 0011 00       		.uleb128 0x24
+ 338 0012 00       		.byte	0x0
+ 339 0013 02       		.uleb128 0xb
+ 340 0014 24       		.uleb128 0xb
+ 341 0015 00       		.uleb128 0x3e
+ 342 0016 0B       		.uleb128 0xb
+ 343 0017 0B       		.uleb128 0x3
+ 344 0018 3E       		.uleb128 0xe
+ 345 0019 0B       		.byte	0x0
+ 346 001a 03       		.byte	0x0
+ 347 001b 0E       		.uleb128 0x3
+ 348 001c 00       		.uleb128 0x16
+ 349 001d 00       		.byte	0x0
+ 350 001e 03       		.uleb128 0x3
+ 351 001f 16       		.uleb128 0xe
+ 352 0020 00       		.uleb128 0x3a
+ 353 0021 03       		.uleb128 0xb
+ 354 0022 0E       		.uleb128 0x3b
+ 355 0023 3A       		.uleb128 0xb
+ 356 0024 0B       		.uleb128 0x49
+ 357 0025 3B       		.uleb128 0x13
+ 358 0026 0B       		.byte	0x0
+ 359 0027 49       		.byte	0x0
+ 360 0028 13       		.uleb128 0x4
+ 361 0029 00       		.uleb128 0x24
+ 362 002a 00       		.byte	0x0
+ 363 002b 04       		.uleb128 0xb
+ 364 002c 24       		.uleb128 0xb
+ 365 002d 00       		.uleb128 0x3e
+ 366 002e 0B       		.uleb128 0xb
+ 367 002f 0B       		.uleb128 0x3
+ 368 0030 3E       		.uleb128 0x8
+ 369 0031 0B       		.byte	0x0
+ 370 0032 03       		.byte	0x0
+ 371 0033 08       		.uleb128 0x5
+ 372 0034 00       		.uleb128 0x2e
+ 373 0035 00       		.byte	0x1
+ 374 0036 05       		.uleb128 0x3f
+ 375 0037 2E       		.uleb128 0xc
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 9
+
+
+ 376 0038 01       		.uleb128 0x3
+ 377 0039 3F       		.uleb128 0xe
+ 378 003a 0C       		.uleb128 0x3a
+ 379 003b 03       		.uleb128 0xb
+ 380 003c 0E       		.uleb128 0x3b
+ 381 003d 3A       		.uleb128 0xb
+ 382 003e 0B       		.uleb128 0x2007
+ 383 003f 3B       		.uleb128 0xe
+ 384 0040 0B       		.uleb128 0x11
+ 385 0041 8740     		.uleb128 0x1
+ 386 0043 0E       		.uleb128 0x12
+ 387 0044 11       		.uleb128 0x1
+ 388 0045 01       		.uleb128 0x40
+ 389 0046 12       		.uleb128 0xa
+ 390 0047 01       		.uleb128 0x1
+ 391 0048 40       		.uleb128 0x13
+ 392 0049 0A       		.byte	0x0
+ 393 004a 01       		.byte	0x0
+ 394 004b 13       		.uleb128 0x6
+ 395 004c 00       		.uleb128 0x34
+ 396 004d 00       		.byte	0x0
+ 397 004e 06       		.uleb128 0x3
+ 398 004f 34       		.uleb128 0x8
+ 399 0050 00       		.uleb128 0x3a
+ 400 0051 03       		.uleb128 0xb
+ 401 0052 08       		.uleb128 0x3b
+ 402 0053 3A       		.uleb128 0xb
+ 403 0054 0B       		.uleb128 0x49
+ 404 0055 3B       		.uleb128 0x13
+ 405 0056 0B       		.byte	0x0
+ 406 0057 49       		.byte	0x0
+ 407 0058 13       		.uleb128 0x7
+ 408 0059 00       		.uleb128 0x34
+ 409 005a 00       		.byte	0x0
+ 410 005b 07       		.uleb128 0x3
+ 411 005c 34       		.uleb128 0xe
+ 412 005d 00       		.uleb128 0x3a
+ 413 005e 03       		.uleb128 0xb
+ 414 005f 0E       		.uleb128 0x3b
+ 415 0060 3A       		.uleb128 0xb
+ 416 0061 0B       		.uleb128 0x49
+ 417 0062 3B       		.uleb128 0x13
+ 418 0063 0B       		.byte	0x0
+ 419 0064 49       		.byte	0x0
+ 420 0065 13       		.uleb128 0x8
+ 421 0066 00       		.uleb128 0xf
+ 422 0067 00       		.byte	0x0
+ 423 0068 08       		.uleb128 0xb
+ 424 0069 0F       		.uleb128 0xb
+ 425 006a 00       		.uleb128 0x49
+ 426 006b 0B       		.uleb128 0x13
+ 427 006c 0B       		.byte	0x0
+ 428 006d 49       		.byte	0x0
+ 429 006e 13       		.uleb128 0x9
+ 430 006f 00       		.uleb128 0x2e
+ 431 0070 00       		.byte	0x1
+ 432 0071 09       		.uleb128 0x3f
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 10
+
+
+ 433 0072 2E       		.uleb128 0xc
+ 434 0073 01       		.uleb128 0x3
+ 435 0074 3F       		.uleb128 0xe
+ 436 0075 0C       		.uleb128 0x3a
+ 437 0076 03       		.uleb128 0xb
+ 438 0077 0E       		.uleb128 0x3b
+ 439 0078 3A       		.uleb128 0xb
+ 440 0079 0B       		.uleb128 0x2007
+ 441 007a 3B       		.uleb128 0xe
+ 442 007b 0B       		.uleb128 0x49
+ 443 007c 8740     		.uleb128 0x13
+ 444 007e 0E       		.uleb128 0x11
+ 445 007f 49       		.uleb128 0x1
+ 446 0080 13       		.uleb128 0x12
+ 447 0081 11       		.uleb128 0x1
+ 448 0082 01       		.uleb128 0x40
+ 449 0083 12       		.uleb128 0x6
+ 450 0084 01       		.uleb128 0x1
+ 451 0085 40       		.uleb128 0x13
+ 452 0086 06       		.byte	0x0
+ 453 0087 01       		.byte	0x0
+ 454 0088 13       		.uleb128 0xa
+ 455 0089 00       		.uleb128 0x5
+ 456 008a 00       		.byte	0x0
+ 457 008b 0A       		.uleb128 0x3
+ 458 008c 05       		.uleb128 0xe
+ 459 008d 00       		.uleb128 0x3a
+ 460 008e 03       		.uleb128 0xb
+ 461 008f 0E       		.uleb128 0x3b
+ 462 0090 3A       		.uleb128 0xb
+ 463 0091 0B       		.uleb128 0x49
+ 464 0092 3B       		.uleb128 0x13
+ 465 0093 0B       		.uleb128 0x2
+ 466 0094 49       		.uleb128 0x6
+ 467 0095 13       		.byte	0x0
+ 468 0096 02       		.byte	0x0
+ 469 0097 06       		.uleb128 0xb
+ 470 0098 00       		.uleb128 0x5
+ 471 0099 00       		.byte	0x0
+ 472 009a 0B       		.uleb128 0x3
+ 473 009b 05       		.uleb128 0xe
+ 474 009c 00       		.uleb128 0x3a
+ 475 009d 03       		.uleb128 0xb
+ 476 009e 0E       		.uleb128 0x3b
+ 477 009f 3A       		.uleb128 0xb
+ 478 00a0 0B       		.uleb128 0x49
+ 479 00a1 3B       		.uleb128 0x13
+ 480 00a2 0B       		.uleb128 0x2
+ 481 00a3 49       		.uleb128 0xa
+ 482 00a4 13       		.byte	0x0
+ 483 00a5 02       		.byte	0x0
+ 484 00a6 0A       		.uleb128 0xc
+ 485 00a7 00       		.uleb128 0xf
+ 486 00a8 00       		.byte	0x0
+ 487 00a9 0C       		.uleb128 0xb
+ 488 00aa 0F       		.uleb128 0xb
+ 489 00ab 00       		.byte	0x0
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 11
+
+
+ 490 00ac 0B       		.byte	0x0
+ 491 00ad 0B       		.byte	0x0
+ 492 00ae 00       		.section	.debug_pubnames,"",%progbits
+ 493 00af 00       		.4byte	0x2b
+ 494 00b0 00       		.2byte	0x2
+ 495              		.4byte	.Ldebug_info0
+ 496 0000 2B000000 		.4byte	0x114
+ 497 0004 0200     		.4byte	0x6f
+ 498 0006 00000000 		.ascii	"init_VIC\000"
+ 499 000a 14010000 		.4byte	0xaf
+ 500 000e 6F000000 		.ascii	"install_irq\000"
+ 501 0012 696E6974 		.4byte	0x0
+ 501      5F564943 
+ 501      00
+ 502 001b AF000000 		.section	.debug_aranges,"",%progbits
+ 503 001f 696E7374 		.4byte	0x1c
+ 503      616C6C5F 
+ 503      69727100 
+ 504 002b 00000000 		.2byte	0x2
+ 505              		.4byte	.Ldebug_info0
+ 506 0000 1C000000 		.byte	0x4
+ 507 0004 0200     		.byte	0x0
+ 508 0006 00000000 		.2byte	0x0
+ 509 000a 04       		.2byte	0x0
+ 510 000b 00       		.4byte	.Ltext0
+ 511 000c 0000     		.4byte	.Letext0-.Ltext0
+ 512 000e 0000     		.4byte	0x0
+ 513 0010 00000000 		.4byte	0x0
+ 514 0014 78000000 		.section	.debug_str,"MS",%progbits,1
+ 515 0018 00000000 	.LASF6:
+ 516 001c 00000000 		.ascii	"long long int\000"
+ 517              	.LASF3:
+ 518              		.ascii	"unsigned int\000"
+ 519 0000 6C6F6E67 	.LASF19:
+ 519      206C6F6E 
+ 519      6720696E 
+ 519      7400
+ 520              		.ascii	"install_irq\000"
+ 521 000e 756E7369 	.LASF11:
+ 521      676E6564 
+ 521      20696E74 
+ 521      00
+ 522              		.ascii	"HandlerAddr\000"
+ 523 001b 696E7374 	.LASF8:
+ 523      616C6C5F 
+ 523      69727100 
+ 524              		.ascii	"vect_addr\000"
+ 525 0027 48616E64 	.LASF15:
+ 525      6C657241 
+ 525      64647200 
+ 526              		.ascii	"C:\\Users\\Chris\\Desktop\\antipasto_java\\antipast"
+ 527 0033 76656374 		.ascii	"o_arduino\\hardware\\cores\\sfboard\000"
+ 527      5F616464 
+ 527      7200
+ 528              	.LASF2:
+ 529 003d 433A5C55 		.ascii	"long unsigned int\000"
+ 529      73657273 
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 12
+
+
+ 529      5C436872 
+ 529      69735C44 
+ 529      65736B74 
+ 530 006b 6F5F6172 	.LASF16:
+ 530      6475696E 
+ 530      6F5C6861 
+ 530      72647761 
+ 530      72655C63 
+ 531              		.ascii	"DWORD\000"
+ 532 008c 6C6F6E67 	.LASF7:
+ 532      20756E73 
+ 532      69676E65 
+ 532      6420696E 
+ 532      7400
+ 533              		.ascii	"long long unsigned int\000"
+ 534 009e 44574F52 	.LASF18:
+ 534      4400
+ 535              		.ascii	"_Z8init_VICv\000"
+ 536 00a4 6C6F6E67 	.LASF0:
+ 536      206C6F6E 
+ 536      6720756E 
+ 536      7369676E 
+ 536      65642069 
+ 537              		.ascii	"unsigned char\000"
+ 538 00bb 5F5A3869 	.LASF17:
+ 538      6E69745F 
+ 538      56494376 
+ 538      00
+ 539              		.ascii	"init_VIC\000"
+ 540 00c8 756E7369 	.LASF12:
+ 540      676E6564 
+ 540      20636861 
+ 540      7200
+ 541              		.ascii	"Priority\000"
+ 542 00d6 696E6974 	.LASF9:
+ 542      5F564943 
+ 542      00
+ 543              		.ascii	"vect_cntl\000"
+ 544 00df 5072696F 	.LASF1:
+ 544      72697479 
+ 544      00
+ 545              		.ascii	"short unsigned int\000"
+ 546 00e8 76656374 	.LASF4:
+ 546      5F636E74 
+ 546      6C00
+ 547              		.ascii	"signed char\000"
+ 548 00f2 73686F72 	.LASF13:
+ 548      7420756E 
+ 548      7369676E 
+ 548      65642069 
+ 548      6E7400
+ 549              		.ascii	"GNU C++ 4.3.2\000"
+ 550 0105 7369676E 	.LASF5:
+ 550      65642063 
+ 550      68617200 
+ 551              		.ascii	"short int\000"
+ 552 0111 474E5520 	.LASF20:
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 13
+
+
+ 552      432B2B20 
+ 552      342E332E 
+ 552      3200
+ 553              		.ascii	"_Z11install_irqmPvm\000"
+ 554 011f 73686F72 	.LASF10:
+ 554      7420696E 
+ 554      7400
+ 555              		.ascii	"IntNumber\000"
+ 556 0129 5F5A3131 	.LASF14:
+ 556      696E7374 
+ 556      616C6C5F 
+ 556      6972716D 
+ 556      50766D00 
+ 557              		.ascii	"irq.cpp\000"
+ 558 013d 496E744E 		.ident	"GCC: (Sourcery G++ Lite 2008q3-39) 4.3.2"
+ 558      756D6265 
+ 558      7200
+ 559              	...
+ARM GAS  C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 irq.cpp
+C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s:23     .text:00000000 _Z8init_VICv
+C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s:34     .text:00000000 $a
+C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s:66     .text:00000038 _Z11install_irqmPvm
+C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s:75     .text:00000038 $a
+C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s:117    .debug_frame:00000000 $d
+C:\Users\Chris\AppData\Local\Temp/cckjbaaa.s:161    .debug_loc:00000000 $d
+
+NO UNDEFINED SYMBOLS

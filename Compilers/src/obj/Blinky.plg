@@ -1,0 +1,325 @@
+<html>
+<body>
+<pre>
+<h1>µVision3 Build Log</h1>
+<h2>Project:</h2>
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard\Blinky.uv2
+Project File Date:  03/11/2009
+
+<h2>Output:</h2>
+Build target 'MCB2130 Flash'
+assembling Startup.s...
+compiling sys_init.c...
+arm-none-eabi-gcc: sys_init.c: No such file or directory
+arm-none-eabi-gcc: no input files
+compiling Serial.c...
+arm-none-eabi-gcc: Serial.c: No such file or directory
+arm-none-eabi-gcc: no input files
+compiling sbl_iap.c...
+arm-none-eabi-gcc: sbl_iap.c: No such file or directory
+arm-none-eabi-gcc: no input files
+compiling Syscalls.c...
+compiling fio.cpp...
+compiling irq.cpp...
+compiling nothrow.cpp...
+compiling sbl_iap.cpp...
+compiling Serial.cpp...
+compiling sys_init.cpp...
+compiling uart.cpp...
+uart.cpp: In function 'void UART1Handler()':
+uart.cpp(122): warning: 'Dummy' is used uninitialized in this function
+linking...
+./obj/syscalls.o: In function `_init':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Syscalls.c:16: multiple definition of `_init'
+c:/program files/codesourcery/sourcery g++ lite/bin/../lib/gcc/arm-none-eabi/4.3.2/crti.o:(.init+0x0): first defined here
+./obj/sbl_iap.o: In function `write_data(unsigned int, unsigned int, unsigned int*, unsigned int)':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:116: multiple definition of `write_data(unsigned int, unsigned int, unsigned int*, unsigned int)'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:116: first defined here
+./obj/sbl_iap.o: In function `erase_sector':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:133: multiple definition of `erase_sector(unsigned int, unsigned int, unsigned int)'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:133: first defined here
+./obj/sbl_iap.o: In function `prepare_sector':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:142: multiple definition of `prepare_sector(unsigned int, unsigned int, unsigned int)'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:142: first defined here
+./obj/sbl_iap.o: In function `iap_entry':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:149: multiple definition of `iap_entry(unsigned int*, unsigned int*)'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:149: first defined here
+./obj/sbl_iap.o: In function `enable_interrupts':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:159: multiple definition of `enable_interrupts(unsigned int)'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:159: first defined here
+./obj/sbl_iap.o: In function `disable_interrupts':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:164: multiple definition of `disable_interrupts(unsigned int)'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:164: first defined here
+./obj/sbl_iap.o: In function `execute_user_code':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:173: multiple definition of `execute_user_code()'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:173: first defined here
+./obj/sbl_iap.o: In function `user_code_present()':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:178: multiple definition of `user_code_present()'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:178: first defined here
+./obj/sbl_iap.o: In function `check_isp_entry_pin()':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:196: multiple definition of `check_isp_entry_pin()'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:196: first defined here
+./obj/sbl_iap.o: In function `erase_user_flash()':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:206: multiple definition of `erase_user_flash()'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:206: first defined here
+./obj/sbl_iap.o: In function `find_erase_prepare_sector':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:91: multiple definition of `find_erase_prepare_sector(unsigned int, unsigned int)'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:91: first defined here
+./obj/sbl_iap.o: In function `write_flash(unsigned int*, unsigned char*, unsigned int)':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:56: multiple definition of `write_flash(unsigned int*, unsigned char*, unsigned int)'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:56: first defined here
+./obj/sbl_iap.o:(.ARM.__at_0x1FC+0x0): multiple definition of `crp'
+./obj/sbl_iap.o:(.ARM.__at_0x1FC+0x0): first defined here
+./obj/sbl_iap.o:(.rodata+0x80): multiple definition of `sector_start_map'
+./obj/sbl_iap.o:(.rodata+0x80): first defined here
+./obj/sbl_iap.o:(.rodata+0x0): multiple definition of `sector_end_map'
+./obj/sbl_iap.o:(.rodata+0x0): first defined here
+./obj/sbl_iap.o: In function `write_data(unsigned int, unsigned int, unsigned int*, unsigned int)':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:116: multiple definition of `param_table'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:116: first defined here
+./obj/sbl_iap.o: In function `write_data(unsigned int, unsigned int, unsigned int*, unsigned int)':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:116: multiple definition of `result_table'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:116: first defined here
+./obj/sbl_iap.o:(.data+0x0): multiple definition of `cclk'
+./obj/sbl_iap.o:(.data+0x0): first defined here
+./obj/sbl_iap.o: In function `write_data(unsigned int, unsigned int, unsigned int*, unsigned int)':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:124: multiple definition of `flash_buf'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:124: first defined here
+./obj/sbl_iap.o: In function `iap_entry':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:154: multiple definition of `flash_address'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:154: first defined here
+./obj/sbl_iap.o: In function `write_data(unsigned int, unsigned int, unsigned int*, unsigned int)':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:122: multiple definition of `byte_ctr'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:122: first defined here
+./obj/sbl_iap.o: In function `iap_entry':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:154: multiple definition of `user_code_entry'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:154: first defined here
+./obj/sbl_iap.o: In function `erase_sector':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:134: multiple definition of `user_code_entry2'
+./obj/sbl_iap.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sbl_iap.cpp:134: first defined here
+./obj/serial.o: In function `SerialISR':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:189: multiple definition of `SerialISR(unsigned char)'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:189: first defined here
+./obj/serial.o: In function `SerialAvailable(unsigned char)':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:384: multiple definition of `SerialAvailable(unsigned char)'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:384: first defined here
+./obj/serial.o: In function `SerialWrite':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:390: multiple definition of `SerialWrite(unsigned char, int)'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:390: first defined here
+./obj/serial.o: In function `SerialStr(unsigned char, char*)':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:400: multiple definition of `SerialStr(unsigned char, char*)'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:400: first defined here
+./obj/serial.o: In function `SerialRead(unsigned char)':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:408: multiple definition of `SerialRead(unsigned char)'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:408: first defined here
+./obj/serial.o: In function `SerialBegin(unsigned char, unsigned long)':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:330: multiple definition of `SerialBegin(unsigned char, unsigned long)'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:330: first defined here
+./obj/serial.o: In function `Serial3ISR()':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:311: multiple definition of `Serial3ISR()'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:311: first defined here
+./obj/serial.o: In function `Serial0ISR()':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:263: multiple definition of `Serial0ISR()'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:263: first defined here
+./obj/serial.o: In function `Serial1ISR()':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:279: multiple definition of `Serial1ISR()'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:279: first defined here
+./obj/serial.o: In function `Serial2ISR()':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:295: multiple definition of `Serial2ISR()'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:295: first defined here
+./obj/serial.o: In function `SerialISR':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:189: multiple definition of `uartData'
+./obj/serial.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Serial.cpp:189: first defined here
+./obj/serial.o:(.data+0x70): multiple definition of `uartInts'
+./obj/serial.o:(.data+0x70): first defined here
+./obj/serial.o:(.data+0x10): multiple definition of `uartPins'
+./obj/serial.o:(.data+0x10): first defined here
+./obj/serial.o:(.data+0x0): multiple definition of `uartReg'
+./obj/serial.o:(.data+0x0): first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:79: multiple definition of `oneMillisHandler()'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:79: first defined here
+./obj/sys_init.o: In function `configPLL':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:113: multiple definition of `sysInit()'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:113: first defined here
+./obj/sys_init.o: In function `sysTimeISR()':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:48: multiple definition of `sysTimeISR()'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:48: first defined here
+./obj/sys_init.o: In function `initADC':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:252: multiple definition of `initADC()'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:252: first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:75: multiple definition of `adcSamplesNorth'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:75: first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:80: multiple definition of `adcSamplesSouth'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:80: first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:82: multiple definition of `adcSamplesEast'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:82: first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:85: multiple definition of `adcSamplesWest'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:85: first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:79: multiple definition of `currentNorth'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:79: first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:79: multiple definition of `currentSouth'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:79: first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:81: multiple definition of `currentEast'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:81: first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:89: multiple definition of `currentWest'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:89: first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:80: multiple definition of `millisCntr'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:80: first defined here
+./obj/sys_init.o: In function `oneMillisHandler':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:79: multiple definition of `millis'
+./obj/sys_init.o:C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/sys_init.cpp:79: first defined here
+c:/program files/codesourcery/sourcery g++ lite/bin/../lib/gcc/arm-none-eabi/4.3.2/../../../../arm-none-eabi/lib\libcs3.a(start_c.o): In function `__cs3_start_c':
+start_c.c:(.text+0xa4): undefined reference to `main'
+collect2: ld returned 1 exit status
+Target not created
+Build target 'MCB2130 Flash'
+assembling Startup.s...
+compiling Syscalls.c...
+compiling fio.cpp...
+compiling irq.cpp...
+compiling nothrow.cpp...
+compiling sbl_iap.cpp...
+compiling Serial.cpp...
+compiling sys_init.cpp...
+compiling uart.cpp...
+uart.cpp: In function 'void UART1Handler()':
+uart.cpp(122): warning: 'Dummy' is used uninitialized in this function
+linking...
+./obj/syscalls.o: In function `_init':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Syscalls.c:16: multiple definition of `_init'
+c:/program files/codesourcery/sourcery g++ lite/bin/../lib/gcc/arm-none-eabi/4.3.2/crti.o:(.init+0x0): first defined here
+c:/program files/codesourcery/sourcery g++ lite/bin/../lib/gcc/arm-none-eabi/4.3.2/../../../../arm-none-eabi/lib\libcs3.a(start_c.o): In function `__cs3_start_c':
+start_c.c:(.text+0xa4): undefined reference to `main'
+collect2: ld returned 1 exit status
+Target not created
+Build target 'MCB2130 Flash'
+assembling Startup.s...
+compiling Syscalls.c...
+compiling fio.cpp...
+compiling irq.cpp...
+compiling nothrow.cpp...
+compiling sbl_iap.cpp...
+compiling Serial.cpp...
+compiling sys_init.cpp...
+compiling uart.cpp...
+uart.cpp: In function 'void UART1Handler()':
+uart.cpp(122): warning: 'Dummy' is used uninitialized in this function
+linking...
+c:/program files/codesourcery/sourcery g++ lite/bin/../lib/gcc/arm-none-eabi/4.3.2/../../../../arm-none-eabi/lib\libcs3.a(start_c.o): In function `__cs3_start_c':
+start_c.c:(.text+0xa4): undefined reference to `main'
+collect2: ld returned 1 exit status
+Target not created
+Build target 'MCB2130 Flash'
+assembling Startup.s...
+compiling Syscalls.c...
+compiling fio.cpp...
+compiling irq.cpp...
+compiling nothrow.cpp...
+compiling sbl_iap.cpp...
+compiling Serial.cpp...
+compiling sys_init.cpp...
+compiling uart.cpp...
+uart.cpp: In function 'void UART1Handler()':
+uart.cpp(122): warning: 'Dummy' is used uninitialized in this function
+linking...
+./obj/syscalls.o: In function `_init':
+C:\Users\Chris\Desktop\antipasto_java\antipasto_arduino\hardware\cores\sfboard/Syscalls.c:16: multiple definition of `_init'
+c:/program files/codesourcery/sourcery g++ lite/bin/../lib/gcc/arm-none-eabi/4.3.2/crti.o:(.init+0x0): first defined here
+c:/program files/codesourcery/sourcery g++ lite/bin/../lib/gcc/arm-none-eabi/4.3.2/../../../../arm-none-eabi/lib\libcs3.a(start_c.o): In function `__cs3_start_c':
+start_c.c:(.text+0xa4): undefined reference to `main'
+collect2: ld returned 1 exit status
+Target not created
+Build target 'MCB2130 Flash'
+assembling Startup.s...
+compiling Syscalls.c...
+compiling fio.cpp...
+compiling irq.cpp...
+compiling nothrow.cpp...
+compiling sbl_iap.cpp...
+compiling Serial.cpp...
+compiling sys_init.cpp...
+compiling uart.cpp...
+uart.cpp: In function 'void UART1Handler()':
+uart.cpp(122): warning: 'Dummy' is used uninitialized in this function
+linking...
+c:/program files/codesourcery/sourcery g++ lite/bin/../lib/gcc/arm-none-eabi/4.3.2/../../../../arm-none-eabi/lib\libcs3.a(start_c.o): In function `__cs3_start_c':
+start_c.c:(.text+0xa4): undefined reference to `main'
+collect2: ld returned 1 exit status
+Target not created
+Build target 'MCB2130 Flash'
+assembling Startup.s...
+compiling Syscalls.c...
+compiling fio.cpp...
+compiling irq.cpp...
+compiling nothrow.cpp...
+compiling sbl_iap.cpp...
+compiling Serial.cpp...
+compiling sys_init.cpp...
+compiling uart.cpp...
+uart.cpp: In function 'void UART1Handler()':
+uart.cpp(122): warning: 'Dummy' is used uninitialized in this function
+compiling main.cxx...
+main.cxx: In function 'int main()':
+main.cxx(135): error: 'setup' was not declared in this scope
+main.cxx(140): error: 'loop' was not declared in this scope
+main.cxx: At global scope:
+main.cxx(62): warning: 'void time_waste(DWORD)' declared 'static' but never defined
+Target not created
+Build target 'MCB2130 Flash'
+assembling Startup.s...
+compiling Syscalls.c...
+compiling fio.cpp...
+compiling irq.cpp...
+compiling nothrow.cpp...
+compiling sbl_iap.cpp...
+compiling Serial.cpp...
+compiling sys_init.cpp...
+compiling uart.cpp...
+uart.cpp: In function 'void UART1Handler()':
+uart.cpp(122): warning: 'Dummy' is used uninitialized in this function
+compiling main.cxx...
+main.cxx(62): warning: 'void time_waste(DWORD)' declared 'static' but never defined
+linking...
+".\obj\Blinky.elf" - 0 Error(s), 2 Warning(s).
+Build target 'MCB2130 Flash'
+assembling Startup.s...
+compiling Syscalls.c...
+compiling fio.cpp...
+compiling irq.cpp...
+compiling nothrow.cpp...
+compiling sbl_iap.cpp...
+compiling Serial.cpp...
+compiling sys_init.cpp...
+compiling uart.cpp...
+uart.cpp: In function 'void UART1Handler()':
+uart.cpp(122): warning: 'Dummy' is used uninitialized in this function
+compiling main.cxx...
+main.cxx(62): warning: 'void time_waste(DWORD)' declared 'static' but never defined
+linking...
+".\obj\Blinky.elf" - 0 Error(s), 2 Warning(s).
+Build target 'MCB2130 Flash'
+assembling Startup.s...
+compiling Syscalls.c...
+compiling fio.cpp...
+compiling irq.cpp...
+compiling nothrow.cpp...
+compiling sbl_iap.cpp...
+compiling Serial.cpp...
+compiling sys_init.cpp...
+compiling uart.cpp...
+uart.cpp: In function 'void UART1Handler()':
+uart.cpp(122): warning: 'Dummy' is used uninitialized in this function
+compiling main.cpp...
+main.cpp(62): warning: 'void time_waste(DWORD)' declared 'static' but never defined
+linking...
+".\obj\Blinky.elf" - 0 Error(s), 2 Warning(s).

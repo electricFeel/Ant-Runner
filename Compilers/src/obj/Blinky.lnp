@@ -1,0 +1,1 @@
+-T ./ARM.ld -mcpu=arm7tdmi -mthumb-interwork -Wl,-Map="./lst/Blinky.map" --gc-sections -o ./obj/Blinky.elf "./obj/startup.o" "./obj/syscalls.o" "./obj/fio.o" "./obj/irq.o" "./obj/nothrow.o" "./obj/sbl_iap.o" "./obj/serial.o" "./obj/sys_init.o" "./obj/uart.o" "./obj/main.o" -nostartfiles -lm
